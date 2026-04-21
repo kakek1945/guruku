@@ -147,7 +147,10 @@ export default function HomePage() {
         <div className="container relative py-6 md:py-8">
           <header className="flex flex-wrap items-center justify-between gap-4 rounded-[28px] border border-[#eadfc6] bg-white px-5 py-4 shadow-[0_18px_48px_rgba(63,52,28,0.08)] dark:border-border dark:bg-card dark:shadow-[0_18px_48px_rgba(0,0,0,0.24)]">
             <AppBrand />
-            <ThemeToggle />
+            <div className="flex gap-2">
+              <ThemeToggle />
+              <Button href="/login">Login</Button>
+            </div>
           </header>
 
           <div className="space-y-12 py-10 md:py-14">
