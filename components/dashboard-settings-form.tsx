@@ -64,7 +64,7 @@ export function DashboardSettingsForm() {
         setProfile(response.profile);
         setAccountForm((current) => ({
           ...current,
-          username: response.profile.email,
+          username: response.accountUsername,
         }));
       })
       .catch((error) => {
@@ -164,10 +164,6 @@ export function DashboardSettingsForm() {
       try {
         const response = await saveDashboardAccount(accountForm);
 
-        setProfile((current) => ({
-          ...current,
-          email: response.username,
-        }));
         setAccountForm({
           username: response.username,
           currentPassword: "",
@@ -269,12 +265,12 @@ export function DashboardSettingsForm() {
                 </Field>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Email" htmlFor="teacher-email">
+                  <Field label="Email kontak" htmlFor="teacher-email">
                     <Input
                       id="teacher-email"
-                      type="email"
                       value={profile.email}
                       onChange={(event) => handleChange("email", event.target.value)}
+                      placeholder="Opsional untuk kontak profil"
                     />
                   </Field>
                   <Field label="Nomor HP" htmlFor="teacher-phone">

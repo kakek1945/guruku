@@ -4,6 +4,7 @@ import { count, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { students, teacherProfiles, user } from "@/lib/db/schema";
+import { displayAuthLogin } from "@/lib/auth-login";
 import {
   ensureTeacherProfile,
   getSessionFromRequest,
@@ -42,11 +43,15 @@ export async function GET(request: Request) {
   }
 
   const profile = await ensureTeacherProfile(session.user.id);
+  const authUser = await db.query.user.findFirst({
+    where: eq(user.id, session.user.id),
+  });
   const [studentCountRow] = await db.select({ total: count() }).from(students);
 
   return NextResponse.json({
     profile: profileResponse(profile),
     studentCount: Number(studentCountRow?.total ?? 0),
+    accountUsername: displayAuthLogin(authUser?.email || profile.email),
   });
 }
 
@@ -68,9 +73,9 @@ export async function POST(request: Request) {
   const announcementTitle = getFormValue(formData, "announcementTitle");
   const announcementBody = getFormValue(formData, "announcementBody");
 
-  if (!name || !role || !email) {
+  if (!name || !role) {
     return NextResponse.json(
-      { message: "Nama guru, mata pelajaran, dan email wajib diisi." },
+      { message: "Nama guru dan mata pelajaran wajib diisi." },
       { status: 400 },
     );
   }
@@ -114,7 +119,6 @@ export async function POST(request: Request) {
     .update(user)
     .set({
       name,
-      email,
       image: profileImage,
       updatedAt: new Date(),
     })

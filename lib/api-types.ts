@@ -65,6 +65,7 @@ export type DashboardSettingsProfile = {
 export type DashboardSettingsApiResponse = {
   profile: DashboardSettingsProfile;
   studentCount: number;
+  accountUsername: string;
 };
 
 export type DashboardSettingsMutationResponse = {
