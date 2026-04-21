@@ -45,6 +45,7 @@ const initialReportFilters = {
   fromDate: "2026-04-01",
   toDate: "2026-04-20",
   month: "2026-04",
+  className: "VII-A",
 };
 
 function formatReportPeriod(filters: typeof initialReportFilters) {
@@ -116,6 +117,10 @@ export function DashboardJurnalForm() {
             toDate: activeFilters.toDate,
           };
 
+    if (activeFilters.className) {
+      searchParams.className = activeFilters.className;
+    }
+
     const response = await getJournals(searchParams);
     setHistory(response.history);
     return response.history;
@@ -184,6 +189,13 @@ export function DashboardJurnalForm() {
       ...current,
       [key]: value,
     }));
+
+    if (key === "className") {
+      setReportFilters((current) => ({
+        ...current,
+        className: value,
+      }));
+    }
   };
 
   const handleReportChange = (key: keyof typeof initialReportFilters, value: string) => {
@@ -283,6 +295,15 @@ export function DashboardJurnalForm() {
           font: regularFont,
           color: rgb(0.28, 0.36, 0.33),
         });
+        if (reportFilters.className) {
+          page.drawText(`Kelas: ${reportFilters.className}`, {
+            x: marginX + 250,
+            y: y - 48,
+            size: 10.5,
+            font: regularFont,
+            color: rgb(0.28, 0.36, 0.33),
+          });
+        }
         y -= 78;
 
         for (const entry of filteredHistory) {
@@ -425,6 +446,7 @@ export function DashboardJurnalForm() {
                 <p><strong>Sekolah:</strong> ${profile.school}</p>
                 <p><strong>Guru:</strong> ${profile.name}</p>
                 <p><strong>Periode:</strong> ${formatReportPeriod(reportFilters)}</p>
+                <p><strong>Kelas:</strong> ${reportFilters.className || "Semua kelas"}</p>
               </div>
               <table>
                 <thead>
@@ -596,7 +618,7 @@ export function DashboardJurnalForm() {
                 <Badge>{history.length} entri</Badge>
               </div>
 
-              <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr] md:items-end">
+              <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr_180px] md:items-end">
                 <div>
                   <Label htmlFor="report-mode">Jenis rekap</Label>
                   <Select
@@ -609,8 +631,21 @@ export function DashboardJurnalForm() {
                   </Select>
                 </div>
 
+                <div className="md:order-3">
+                  <Label htmlFor="report-class">Kelas</Label>
+                  <Select
+                    id="report-class"
+                    value={reportFilters.className}
+                    onChange={(event) => handleReportChange("className", event.target.value)}
+                  >
+                    {classOptions.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </Select>
+                </div>
+
                 {reportFilters.mode === "month" ? (
-                  <div>
+                  <div className="md:order-2">
                     <Label htmlFor="report-month">Bulan</Label>
                     <Input
                       id="report-month"
@@ -620,7 +655,7 @@ export function DashboardJurnalForm() {
                     />
                   </div>
                 ) : (
-                  <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-end">
+                  <div className="grid gap-3 md:order-2 md:grid-cols-[1fr_auto_1fr] md:items-end">
                     <div>
                       <Label htmlFor="report-from">Dari tanggal</Label>
                       <Input

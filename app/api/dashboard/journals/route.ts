@@ -18,8 +18,13 @@ export async function GET(request: Request) {
   const fromDate = searchParams.get("fromDate")?.trim() || "";
   const toDate = searchParams.get("toDate")?.trim() || "";
   const month = searchParams.get("month")?.trim() || "";
+  const className = searchParams.get("className")?.trim() || "";
 
   const filters = [eq(journals.authUserId, session.user.id)];
+
+  if (className) {
+    filters.push(eq(journals.className, className));
+  }
 
   if (month) {
     const [year, monthValue] = month.split("-");
