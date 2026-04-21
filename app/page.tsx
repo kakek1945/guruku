@@ -149,10 +149,7 @@ export default function HomePage() {
             <AppBrand />
             <div className="flex gap-2">
               <ThemeToggle />
-              <Button href="/login" variant="ghost">
-                Login
-              </Button>
-              <Button href="/dashboard">Dashboard</Button>
+              <Button href="/login">Login</Button>
             </div>
           </header>
 
@@ -193,7 +190,7 @@ export default function HomePage() {
                     </div>
                     <div className="flex flex-wrap gap-3">
                       <Button href="/login" size="lg">
-                        Masuk ke dashboard
+                        Masuk
                       </Button>
                       <Button href="#info" size="lg" variant="ghost">
                         Lihat informasi terbaru

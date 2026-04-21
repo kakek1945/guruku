@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { and, desc, eq, gte, lt, lte } from "drizzle-orm";
+import { and, desc, eq, gte, lt } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { journals } from "@/lib/db/schema";
@@ -15,8 +15,6 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const fromDate = searchParams.get("fromDate")?.trim() || "";
-  const toDate = searchParams.get("toDate")?.trim() || "";
   const month = searchParams.get("month")?.trim() || "";
   const schoolYear = searchParams.get("schoolYear")?.trim() || "";
   const semester = searchParams.get("semester")?.trim() || "";
@@ -41,20 +39,12 @@ export async function GET(request: Request) {
       filters.push(gte(journals.entryDate, `${endYear}-01-01`));
       filters.push(lt(journals.entryDate, `${endYear}-07-01`));
     }
-  } else {
-    if (fromDate) {
-      filters.push(gte(journals.entryDate, fromDate));
-    }
-
-    if (toDate) {
-      filters.push(lte(journals.entryDate, toDate));
-    }
   }
 
   const history = await db.query.journals.findMany({
     where: and(...filters),
     orderBy: [desc(journals.entryDate), desc(journals.createdAt)],
-    limit: month || fromDate || toDate ? 200 : 12,
+    limit: month || (schoolYear && semester) ? 200 : 12,
   });
 
   return NextResponse.json({
