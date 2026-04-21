@@ -76,6 +76,7 @@ export type DashboardStudentImportResponse = {
   message: string;
   imported: number;
   studentCount: number;
+  importedClasses: string[];
 };
 
 export type DashboardAccountMutationResponse = {

@@ -94,6 +94,8 @@ export function DashboardKelasView() {
     startImporting(async () => {
       const formData = new FormData();
       formData.set("studentCsv", selectedCsvFile);
+      formData.set("schoolYear", filters.schoolYear);
+      formData.set("semester", filters.semester);
 
       try {
         const response = await importDashboardStudents(formData);
@@ -106,8 +108,10 @@ export function DashboardKelasView() {
           csvInputRef.current.value = "";
         }
 
+        const nextClassName = response.importedClasses[0] || filters.className;
+
         const latest = await getClasses({
-          className: filters.className,
+          className: nextClassName,
           subject: "",
           search: filters.search,
           schoolYear: filters.schoolYear,
@@ -115,9 +119,12 @@ export function DashboardKelasView() {
         });
 
         setData(latest);
-        if (!latest.classOptions.includes(filters.className) && latest.classOptions[0]) {
-          setFilters((current) => ({ ...current, className: latest.classOptions[0] }));
-        }
+        setFilters((current) => ({
+          ...current,
+          className: latest.classOptions.includes(nextClassName)
+            ? nextClassName
+            : latest.classOptions[0] || "",
+        }));
       } catch (error) {
         setFeedback({
           tone: "error",

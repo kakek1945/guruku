@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { count } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { students } from "@/lib/db/schema";
+import { classesCatalog, students } from "@/lib/db/schema";
+import { academicFilters } from "@/lib/mock-data";
 import { getSessionFromRequest } from "@/lib/server/dashboard";
 
 export const runtime = "nodejs";
@@ -89,6 +90,16 @@ export async function POST(request: Request) {
 
   const formData = await request.formData();
   const csvFile = formData.get("studentCsv");
+  const schoolYearValue = formData.get("schoolYear");
+  const semesterValue = formData.get("semester");
+  const schoolYear =
+    typeof schoolYearValue === "string" && schoolYearValue.trim()
+      ? schoolYearValue.trim()
+      : academicFilters.schoolYear;
+  const semester =
+    typeof semesterValue === "string" && semesterValue.trim()
+      ? semesterValue.trim()
+      : academicFilters.semester;
 
   if (!(csvFile instanceof File) || csvFile.size === 0) {
     return NextResponse.json({ message: "Pilih file CSV terlebih dahulu." }, { status: 400 });
@@ -118,6 +129,7 @@ export async function POST(request: Request) {
   }
 
   let imported = 0;
+  const importedClasses = new Set<string>();
 
   for (const row of rows.slice(1)) {
     const nis = row[nisIndex]?.trim();
@@ -128,6 +140,8 @@ export async function POST(request: Request) {
     if (!nis || !name || !className) {
       continue;
     }
+
+    importedClasses.add(className);
 
     await db
       .insert(students)
@@ -160,11 +174,35 @@ export async function POST(request: Request) {
     );
   }
 
+  for (const className of importedClasses) {
+    await db
+      .insert(classesCatalog)
+      .values({
+        authUserId: session.user.id,
+        className,
+        schoolYear,
+        semester,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [
+          classesCatalog.authUserId,
+          classesCatalog.className,
+          classesCatalog.schoolYear,
+          classesCatalog.semester,
+        ],
+        set: {
+          updatedAt: new Date(),
+        },
+      });
+  }
+
   const [studentCountRow] = await db.select({ total: count() }).from(students);
 
   return NextResponse.json({
     message: `${imported} data siswa berhasil diimpor.`,
     imported,
     studentCount: Number(studentCountRow?.total ?? 0),
+    importedClasses: Array.from(importedClasses).sort(),
   });
 }
