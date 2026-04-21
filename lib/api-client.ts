@@ -29,6 +29,7 @@ export async function apiRequest<T>(path: string, options: ApiRequestOptions = {
 
   const response = await fetch(resolveApiUrl(path, searchParams), {
     ...rest,
+    cache: "no-store",
     headers: isFormData
       ? headers
       : {
