@@ -3,7 +3,6 @@ import { config } from "dotenv";
 import { eq } from "drizzle-orm";
 
 import { auth } from "@/lib/auth";
-import { normalizeAuthLogin } from "@/lib/auth-login";
 import { db, pool } from "@/lib/db";
 import {
   account,
@@ -20,14 +19,13 @@ import {
   verification,
   videoLibrary,
 } from "@/lib/db/schema";
-import { teacherProfile } from "@/lib/mock-data";
 
 config({ path: ".env.local" });
 config();
 
 const adminSeed = {
-  name: teacherProfile.name,
-  email: normalizeAuthLogin(teacherProfile.email),
+  name: "Admin GuruKu",
+  email: "admin@guruku.local",
   password: "P4ssw0rd",
 };
 
@@ -64,28 +62,28 @@ async function ensureAdminUser() {
     .insert(teacherProfiles)
     .values({
       authUserId: createdUser.id,
-      name: teacherProfile.name,
-      role: teacherProfile.role,
-      school: teacherProfile.school,
-      nip: teacherProfile.nip || null,
-      email: teacherProfile.email,
-      phone: teacherProfile.phone || null,
-      address: teacherProfile.address || null,
-      announcementTitle: teacherProfile.announcementTitle,
-      announcementBody: teacherProfile.announcementBody,
+      name: "Admin GuruKu",
+      role: "Administrator",
+      school: "SMP Negeri Kep. Meranti",
+      nip: null,
+      email: "admin@guruku",
+      phone: null,
+      address: null,
+      announcementTitle: "Pengumuman guru",
+      announcementBody: "Belum ada pengumuman.",
     })
     .onConflictDoUpdate({
       target: teacherProfiles.authUserId,
       set: {
-        name: teacherProfile.name,
-        role: teacherProfile.role,
-        school: teacherProfile.school,
-        nip: teacherProfile.nip || null,
-        email: teacherProfile.email,
-        phone: teacherProfile.phone || null,
-        address: teacherProfile.address || null,
-        announcementTitle: teacherProfile.announcementTitle,
-        announcementBody: teacherProfile.announcementBody,
+        name: "Admin GuruKu",
+        role: "Administrator",
+        school: "SMP Negeri Kep. Meranti",
+        nip: null,
+        email: "admin@guruku",
+        phone: null,
+        address: null,
+        announcementTitle: "Pengumuman guru",
+        announcementBody: "Belum ada pengumuman.",
         updatedAt: new Date(),
       },
     });
@@ -96,7 +94,7 @@ async function main() {
   await ensureAdminUser();
 
   console.log("Database reset completed successfully.");
-  console.log(`Admin username: ${teacherProfile.email}`);
+  console.log("Admin username: admin@guruku");
   console.log(`Admin password: ${adminSeed.password}`);
 }
 
