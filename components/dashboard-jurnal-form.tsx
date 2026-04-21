@@ -13,7 +13,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getClasses, getDashboardSettings, getJournals, saveJournal } from "@/lib/api/dashboard";
 import type { DashboardSettingsProfile, JournalHistoryItem, JournalsApiResponse } from "@/lib/api-types";
-import { journalHistory, teacherProfile } from "@/lib/mock-data";
+import { academicFilters, journalHistory, teacherProfile } from "@/lib/mock-data";
 
 const defaultHistory: JournalHistoryItem[] = journalHistory.map((entry, index) => ({
   id: `${entry.date}-${entry.className}-${index}`,
@@ -41,11 +41,10 @@ const initialForm = {
 };
 
 const initialReportFilters = {
-  mode: "range",
-  fromDate: "2026-04-01",
-  toDate: "2026-04-20",
+  mode: "month",
   month: "2026-04",
-  className: "VII-A",
+  schoolYear: academicFilters.schoolYear,
+  semester: academicFilters.semester,
 };
 
 function formatReportPeriod(filters: typeof initialReportFilters) {
@@ -53,7 +52,7 @@ function formatReportPeriod(filters: typeof initialReportFilters) {
     return `Bulan ${filters.month}`;
   }
 
-  return `${filters.fromDate} s.d. ${filters.toDate}`;
+  return `Semester ${filters.semester} ${filters.schoolYear}`;
 }
 
 function wrapPdfText(text: string, maxWidth: number, font: { widthOfTextAtSize(text: string, size: number): number }, fontSize: number) {
@@ -104,7 +103,7 @@ export function DashboardJurnalForm() {
   const [isPending, startTransition] = useTransition();
   const [isExporting, startExporting] = useTransition();
 
-  const fetchHistory = async (filters?: Partial<typeof initialReportFilters>) => {
+  const fetchReportHistory = async (filters?: Partial<typeof initialReportFilters>) => {
     const activeFilters = {
       ...reportFilters,
       ...filters,
@@ -113,16 +112,11 @@ export function DashboardJurnalForm() {
       activeFilters.mode === "month"
         ? { month: activeFilters.month }
         : {
-            fromDate: activeFilters.fromDate,
-            toDate: activeFilters.toDate,
+            schoolYear: activeFilters.schoolYear,
+            semester: activeFilters.semester,
           };
 
-    if (activeFilters.className) {
-      searchParams.className = activeFilters.className;
-    }
-
     const response = await getJournals(searchParams);
-    setHistory(response.history);
     return response.history;
   };
 
@@ -189,13 +183,6 @@ export function DashboardJurnalForm() {
       ...current,
       [key]: value,
     }));
-
-    if (key === "className") {
-      setReportFilters((current) => ({
-        ...current,
-        className: value,
-      }));
-    }
   };
 
   const handleReportChange = (key: keyof typeof initialReportFilters, value: string) => {
@@ -205,25 +192,12 @@ export function DashboardJurnalForm() {
     }));
   };
 
-  const handleApplyReport = () => {
-    setFeedback("");
-
-    startExporting(async () => {
-      try {
-        const filteredHistory = await fetchHistory();
-        setFeedback(`Rekap jurnal ditemukan: ${filteredHistory.length} entri.`);
-      } catch (error) {
-        setFeedback(error instanceof Error ? error.message : "Rekap jurnal belum dapat dimuat.");
-      }
-    });
-  };
-
   const handleDownloadReport = () => {
     setFeedback("");
 
     startExporting(async () => {
       try {
-        const filteredHistory = await fetchHistory();
+        const filteredHistory = await fetchReportHistory();
 
         if (filteredHistory.length === 0) {
           setFeedback("Belum ada jurnal pada filter rekap yang dipilih.");
@@ -295,15 +269,6 @@ export function DashboardJurnalForm() {
           font: regularFont,
           color: rgb(0.28, 0.36, 0.33),
         });
-        if (reportFilters.className) {
-          page.drawText(`Kelas: ${reportFilters.className}`, {
-            x: marginX + 250,
-            y: y - 48,
-            size: 10.5,
-            font: regularFont,
-            color: rgb(0.28, 0.36, 0.33),
-          });
-        }
         y -= 78;
 
         for (const entry of filteredHistory) {
@@ -375,7 +340,7 @@ export function DashboardJurnalForm() {
         const fileSuffix =
           reportFilters.mode === "month"
             ? `bulan-${reportFilters.month}`
-            : `${reportFilters.fromDate}_${reportFilters.toDate}`;
+            : `semester-${reportFilters.semester}-${reportFilters.schoolYear.replace("/", "-")}`;
 
         link.href = url;
         link.download = `rekap-jurnal-${fileSuffix}.pdf`;
@@ -394,7 +359,7 @@ export function DashboardJurnalForm() {
 
     startExporting(async () => {
       try {
-        const filteredHistory = await fetchHistory();
+        const filteredHistory = await fetchReportHistory();
 
         if (filteredHistory.length === 0) {
           setFeedback("Belum ada jurnal pada filter rekap yang dipilih.");
@@ -446,7 +411,7 @@ export function DashboardJurnalForm() {
                 <p><strong>Sekolah:</strong> ${profile.school}</p>
                 <p><strong>Guru:</strong> ${profile.name}</p>
                 <p><strong>Periode:</strong> ${formatReportPeriod(reportFilters)}</p>
-                <p><strong>Kelas:</strong> ${reportFilters.className || "Semua kelas"}</p>
+                <p><strong>Kelas:</strong> Semua kelas</p>
               </div>
               <table>
                 <thead>
@@ -612,13 +577,13 @@ export function DashboardJurnalForm() {
                     <p className="text-sm font-medium text-foreground">Rekap jurnal</p>
                   </div>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    Pilih rekap berdasarkan rentang tanggal atau per bulan, lalu unduh PDF atau cetak langsung.
+                    Rekap jurnal dibuat untuk semua kelas. Pilih per bulan atau per semester, lalu unduh PDF atau cetak langsung.
                   </p>
                 </div>
                 <Badge>{history.length} entri</Badge>
               </div>
 
-              <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr_180px] md:items-end">
+              <div className="mt-5 grid gap-4 md:grid-cols-[180px_1fr] md:items-end">
                 <div>
                   <Label htmlFor="report-mode">Jenis rekap</Label>
                   <Select
@@ -626,26 +591,13 @@ export function DashboardJurnalForm() {
                     value={reportFilters.mode}
                     onChange={(event) => handleReportChange("mode", event.target.value)}
                   >
-                    <option value="range">Dari tanggal</option>
                     <option value="month">Per bulan</option>
-                  </Select>
-                </div>
-
-                <div className="md:order-3">
-                  <Label htmlFor="report-class">Kelas</Label>
-                  <Select
-                    id="report-class"
-                    value={reportFilters.className}
-                    onChange={(event) => handleReportChange("className", event.target.value)}
-                  >
-                    {classOptions.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
+                    <option value="semester">Per semester</option>
                   </Select>
                 </div>
 
                 {reportFilters.mode === "month" ? (
-                  <div className="md:order-2">
+                  <div>
                     <Label htmlFor="report-month">Bulan</Label>
                     <Input
                       id="report-month"
@@ -655,36 +607,31 @@ export function DashboardJurnalForm() {
                     />
                   </div>
                 ) : (
-                  <div className="grid gap-3 md:order-2 md:grid-cols-[1fr_auto_1fr] md:items-end">
+                  <div className="grid gap-3 md:grid-cols-[1fr_180px] md:items-end">
                     <div>
-                      <Label htmlFor="report-from">Dari tanggal</Label>
+                      <Label htmlFor="report-school-year">Tahun ajaran</Label>
                       <Input
-                        id="report-from"
-                        type="date"
-                        value={reportFilters.fromDate}
-                        onChange={(event) => handleReportChange("fromDate", event.target.value)}
+                        id="report-school-year"
+                        value={reportFilters.schoolYear}
+                        onChange={(event) => handleReportChange("schoolYear", event.target.value)}
                       />
                     </div>
-                    <div className="flex h-11 items-center justify-center rounded-2xl border border-border bg-card px-4 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                      sampai
-                    </div>
                     <div>
-                      <Label htmlFor="report-to">Sampai tanggal</Label>
-                      <Input
-                        id="report-to"
-                        type="date"
-                        value={reportFilters.toDate}
-                        onChange={(event) => handleReportChange("toDate", event.target.value)}
-                      />
+                      <Label htmlFor="report-semester">Semester</Label>
+                      <Select
+                        id="report-semester"
+                        value={reportFilters.semester}
+                        onChange={(event) => handleReportChange("semester", event.target.value)}
+                      >
+                        <option value="Ganjil">Ganjil</option>
+                        <option value="Genap">Genap</option>
+                      </Select>
                     </div>
                   </div>
                 )}
               </div>
 
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <Button type="button" variant="ghost" onClick={handleApplyReport} aria-busy={isExporting}>
-                  {isExporting ? "Memuat..." : "Tampilkan rekap"}
-                </Button>
                 <Button type="button" onClick={handleDownloadReport} aria-busy={isExporting}>
                   Download PDF
                 </Button>

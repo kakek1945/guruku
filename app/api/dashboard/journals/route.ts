@@ -18,13 +18,10 @@ export async function GET(request: Request) {
   const fromDate = searchParams.get("fromDate")?.trim() || "";
   const toDate = searchParams.get("toDate")?.trim() || "";
   const month = searchParams.get("month")?.trim() || "";
-  const className = searchParams.get("className")?.trim() || "";
+  const schoolYear = searchParams.get("schoolYear")?.trim() || "";
+  const semester = searchParams.get("semester")?.trim() || "";
 
   const filters = [eq(journals.authUserId, session.user.id)];
-
-  if (className) {
-    filters.push(eq(journals.className, className));
-  }
 
   if (month) {
     const [year, monthValue] = month.split("-");
@@ -34,6 +31,16 @@ export async function GET(request: Request) {
 
     filters.push(gte(journals.entryDate, startDate));
     filters.push(lt(journals.entryDate, nextMonth));
+  } else if (schoolYear && semester) {
+    const [startYear, endYear] = schoolYear.split("/");
+
+    if (semester === "Ganjil") {
+      filters.push(gte(journals.entryDate, `${startYear}-07-01`));
+      filters.push(lt(journals.entryDate, `${Number(startYear) + 1}-01-01`));
+    } else {
+      filters.push(gte(journals.entryDate, `${endYear}-01-01`));
+      filters.push(lt(journals.entryDate, `${endYear}-07-01`));
+    }
   } else {
     if (fromDate) {
       filters.push(gte(journals.entryDate, fromDate));
