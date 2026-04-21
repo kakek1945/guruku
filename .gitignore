@@ -1,0 +1,13 @@
+.next
+node_modules
+out
+dist
+coverage
+*.log
+*.err
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+public/uploads

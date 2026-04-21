@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 44 38% 97%;
+    --foreground: 153 20% 20%;
+    --card: 0 0% 100%;
+    --card-foreground: 153 20% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 153 20% 20%;
+    --primary: 158 55% 29%;
+    --primary-foreground: 48 60% 97%;
+    --secondary: 42 44% 92%;
+    --secondary-foreground: 156 27% 27%;
+    --muted: 44 28% 93%;
+    --muted-foreground: 150 11% 41%;
+    --accent: 42 52% 83%;
+    --accent-foreground: 156 27% 25%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 42 24% 84%;
+    --input: 42 20% 86%;
+    --ring: 158 55% 29%;
+    --radius: 1.15rem;
+  }
+
+  .dark {
+    --background: 158 30% 11%;
+    --foreground: 42 34% 92%;
+    --card: 158 28% 14%;
+    --card-foreground: 42 34% 92%;
+    --popover: 158 28% 14%;
+    --popover-foreground: 42 34% 92%;
+    --primary: 42 58% 74%;
+    --primary-foreground: 158 35% 16%;
+    --secondary: 156 19% 20%;
+    --secondary-foreground: 42 28% 88%;
+    --muted: 156 18% 18%;
+    --muted-foreground: 42 12% 70%;
+    --accent: 156 20% 19%;
+    --accent-foreground: 42 34% 92%;
+    --destructive: 0 63% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 156 14% 24%;
+    --input: 156 14% 24%;
+    --ring: 42 58% 74%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top, hsl(42 55% 92% / 0.55), transparent 34%),
+      linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  }
+
+  .dark body {
+    background-image:
+      radial-gradient(circle at top, hsl(158 34% 24% / 0.35), transparent 32%),
+      linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
+  }
+}
