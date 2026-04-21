@@ -5,8 +5,10 @@ import type { Config } from "drizzle-kit";
 config({ path: ".env.local" });
 config();
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL is not set");
+const migrationDatabaseUrl = process.env.MIGRATION_DATABASE_URL || process.env.DATABASE_URL;
+
+if (!migrationDatabaseUrl) {
+  throw new Error("MIGRATION_DATABASE_URL or DATABASE_URL is not set");
 }
 
 export default {
@@ -14,7 +16,7 @@ export default {
   schema: "./lib/db/schema.ts",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL,
+    url: migrationDatabaseUrl,
   },
   verbose: true,
   strict: true,

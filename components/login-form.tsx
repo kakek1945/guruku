@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
-import { isAuthConfigured } from "@/lib/app-config";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,11 +20,6 @@ export function LoginForm() {
     setErrorMessage("");
 
     startTransition(async () => {
-      if (!isAuthConfigured) {
-        router.push("/dashboard");
-        return;
-      }
-
       try {
         const result = await authClient.signIn.email({
           email,
@@ -70,12 +64,6 @@ export function LoginForm() {
           onChange={(event) => setPassword(event.target.value)}
         />
       </div>
-
-      {!isAuthConfigured ? (
-        <p className="text-sm text-muted-foreground">
-          Mode demo aktif. Atur `NEXT_PUBLIC_AUTH_BASE_URL` untuk menghubungkan Better Auth.
-        </p>
-      ) : null}
 
       {errorMessage ? <p className="text-sm text-red-600 dark:text-red-400">{errorMessage}</p> : null}
 

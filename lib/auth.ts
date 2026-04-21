@@ -10,6 +10,9 @@ config({ path: ".env.local" });
 config();
 
 const secret = process.env.BETTER_AUTH_SECRET;
+const baseURL =
+  process.env.BETTER_AUTH_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
 if (!secret) {
   throw new Error("BETTER_AUTH_SECRET is not set");
@@ -17,7 +20,7 @@ if (!secret) {
 
 export const auth = betterAuth({
   appName: "Guruku",
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL,
   secret,
   database: drizzleAdapter(db, {
     provider: "pg",
