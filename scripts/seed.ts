@@ -3,29 +3,54 @@ import { config } from "dotenv";
 import { eq } from "drizzle-orm";
 
 import { auth } from "@/lib/auth";
+import { normalizeAuthLogin } from "@/lib/auth-login";
 import { db, pool } from "@/lib/db";
-import { students, teacherProfiles, user } from "@/lib/db/schema";
-import { studentCsvTemplateRows, teacherProfile } from "@/lib/mock-data";
+import {
+  account,
+  attendanceRegisters,
+  classesCatalog,
+  journals,
+  materialsLibrary,
+  mediaLibrary,
+  scoreRegisters,
+  session,
+  students,
+  teacherProfiles,
+  user,
+  verification,
+  videoLibrary,
+} from "@/lib/db/schema";
+import { teacherProfile } from "@/lib/mock-data";
 
 config({ path: ".env.local" });
 config();
 
 const adminSeed = {
   name: teacherProfile.name,
-  email: teacherProfile.email,
-  password: "guruku12345",
+  email: normalizeAuthLogin(teacherProfile.email),
+  password: "P4ssw0rd",
 };
 
-async function ensureAdminUser() {
-  const existingUser = await db.query.user.findFirst({
-    where: eq(user.email, adminSeed.email),
-  });
+async function resetStoredData() {
+  await db.delete(attendanceRegisters);
+  await db.delete(scoreRegisters);
+  await db.delete(journals);
+  await db.delete(materialsLibrary);
+  await db.delete(mediaLibrary);
+  await db.delete(videoLibrary);
+  await db.delete(classesCatalog);
+  await db.delete(students);
+  await db.delete(teacherProfiles);
+  await db.delete(session);
+  await db.delete(account);
+  await db.delete(verification);
+  await db.delete(user);
+}
 
-  if (!existingUser) {
-    await auth.api.signUpEmail({
-      body: adminSeed,
-    });
-  }
+async function ensureAdminUser() {
+  await auth.api.signUpEmail({
+    body: adminSeed,
+  });
 
   const createdUser = await db.query.user.findFirst({
     where: eq(user.email, adminSeed.email),
@@ -42,10 +67,12 @@ async function ensureAdminUser() {
       name: teacherProfile.name,
       role: teacherProfile.role,
       school: teacherProfile.school,
-      nip: teacherProfile.nip,
+      nip: teacherProfile.nip || null,
       email: teacherProfile.email,
-      phone: teacherProfile.phone,
-      address: teacherProfile.address,
+      phone: teacherProfile.phone || null,
+      address: teacherProfile.address || null,
+      announcementTitle: teacherProfile.announcementTitle,
+      announcementBody: teacherProfile.announcementBody,
     })
     .onConflictDoUpdate({
       target: teacherProfiles.authUserId,
@@ -53,45 +80,23 @@ async function ensureAdminUser() {
         name: teacherProfile.name,
         role: teacherProfile.role,
         school: teacherProfile.school,
-        nip: teacherProfile.nip,
+        nip: teacherProfile.nip || null,
         email: teacherProfile.email,
-        phone: teacherProfile.phone,
-        address: teacherProfile.address,
+        phone: teacherProfile.phone || null,
+        address: teacherProfile.address || null,
+        announcementTitle: teacherProfile.announcementTitle,
+        announcementBody: teacherProfile.announcementBody,
         updatedAt: new Date(),
       },
     });
 }
 
-async function ensureStudents() {
-  for (const row of studentCsvTemplateRows) {
-    const [nis, name, className, gender] = row;
-
-    await db
-      .insert(students)
-      .values({
-        nis,
-        name,
-        className,
-        gender,
-      })
-      .onConflictDoUpdate({
-        target: students.nis,
-        set: {
-          name,
-          className,
-          gender,
-          updatedAt: new Date(),
-        },
-      });
-  }
-}
-
 async function main() {
+  await resetStoredData();
   await ensureAdminUser();
-  await ensureStudents();
 
-  console.log("Database seeded successfully.");
-  console.log(`Admin email: ${adminSeed.email}`);
+  console.log("Database reset completed successfully.");
+  console.log(`Admin username: ${teacherProfile.email}`);
   console.log(`Admin password: ${adminSeed.password}`);
 }
 

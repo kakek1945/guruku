@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
+import { normalizeAuthLogin } from "@/lib/auth-login";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +23,7 @@ export function LoginForm() {
     startTransition(async () => {
       try {
         const result = await authClient.signIn.email({
-          email,
+          email: normalizeAuthLogin(email),
           password,
           rememberMe: true,
           callbackURL: "/dashboard",

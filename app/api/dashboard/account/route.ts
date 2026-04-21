@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { and, eq, ne } from "drizzle-orm";
 
 import { auth } from "@/lib/auth";
+import { normalizeAuthLogin } from "@/lib/auth-login";
 import { db } from "@/lib/db";
 import { teacherProfiles, user } from "@/lib/db/schema";
 import { getSessionFromRequest } from "@/lib/server/dashboard";
@@ -32,8 +33,10 @@ export async function POST(request: Request) {
   }
 
   if (username) {
+    const normalizedUsername = normalizeAuthLogin(username);
+
     const existingUser = await db.query.user.findFirst({
-      where: and(eq(user.email, username), ne(user.id, session.user.id)),
+      where: and(eq(user.email, normalizedUsername), ne(user.id, session.user.id)),
     });
 
     if (existingUser) {
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
     await db
       .update(user)
       .set({
-        email: username,
+        email: normalizedUsername,
         updatedAt: new Date(),
       })
       .where(eq(user.id, session.user.id));
@@ -91,6 +94,6 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     message: "Username/login dan password berhasil diperbarui.",
-    username: updatedUser?.email || username,
+    username,
   });
 }
