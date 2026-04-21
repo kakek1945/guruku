@@ -42,12 +42,6 @@ export async function GET(request: Request) {
     orderBy: (table, { asc }) => [asc(table.className)],
   });
 
-  const roster = allStudents
-    .filter((student) => student.className === selectedClass)
-    .filter((student) =>
-      search ? `${student.name} ${student.nis}`.toLowerCase().includes(search) : true,
-    );
-
   const latestJournals = await db.query.journals.findMany({
     where: eq(journals.authUserId, session.user.id),
     orderBy: [desc(journals.entryDate), desc(journals.updatedAt)],
@@ -64,6 +58,14 @@ export async function GET(request: Request) {
       ...allStudents.map((student) => student.className),
     ]),
   ).sort();
+  const activeClassName =
+    classNames.includes(selectedClass) ? selectedClass : classNames[0] || "";
+
+  const roster = allStudents
+    .filter((student) => student.className === activeClassName)
+    .filter((student) =>
+      search ? `${student.name} ${student.nis}`.toLowerCase().includes(search) : true,
+    );
 
   const classAssignments = classNames.map((className) => {
     const classStudents = allStudents.filter((student) => student.className === className);
@@ -83,6 +85,7 @@ export async function GET(request: Request) {
       schoolYear,
       semester,
     },
+    activeClassName,
     classOptions: classNames,
     classAssignments,
     roster: roster.map((student) => ({

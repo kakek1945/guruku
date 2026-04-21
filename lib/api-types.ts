@@ -203,6 +203,7 @@ export type ClassesApiResponse = {
     schoolYear: string;
     semester: string;
   };
+  activeClassName: string;
   classOptions: string[];
   classAssignments: Array<{
     className: string;

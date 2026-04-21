@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 const defaultData: ClassesApiResponse = {
   filters: academicFilters,
+  activeClassName: "VII-A",
   classOptions: ["VII-A", "VIII-B", "IX-A"],
   classAssignments,
   roster: studentRoster,
@@ -56,7 +57,9 @@ export function DashboardKelasView() {
         }
 
         setData(response);
-        if (!response.classOptions.includes(filters.className) && response.classOptions[0]) {
+        if (response.activeClassName && response.activeClassName !== filters.className) {
+          setFilters((current) => ({ ...current, className: response.activeClassName }));
+        } else if (!response.classOptions.includes(filters.className) && response.classOptions[0]) {
           setFilters((current) => ({ ...current, className: response.classOptions[0] }));
         }
       })
@@ -113,7 +116,7 @@ export function DashboardKelasView() {
         const latest = await getClasses({
           className: nextClassName,
           subject: "",
-          search: filters.search,
+          search: "",
           schoolYear: filters.schoolYear,
           semester: filters.semester,
         });
@@ -121,9 +124,10 @@ export function DashboardKelasView() {
         setData(latest);
         setFilters((current) => ({
           ...current,
-          className: latest.classOptions.includes(nextClassName)
-            ? nextClassName
-            : latest.classOptions[0] || "",
+          className:
+            latest.activeClassName ||
+            (latest.classOptions.includes(nextClassName) ? nextClassName : latest.classOptions[0] || ""),
+          search: "",
         }));
       } catch (error) {
         setFeedback({
@@ -167,7 +171,7 @@ export function DashboardKelasView() {
         setData(latest);
         setFilters((current) => ({
           ...current,
-          className: nextClassName || latest.classOptions[0] || "",
+          className: latest.activeClassName || nextClassName || latest.classOptions[0] || "",
         }));
       } catch (error) {
         setFeedback({
