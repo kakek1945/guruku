@@ -8,9 +8,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { getAttendance, getClasses, saveAttendance } from "@/lib/api/dashboard";
+import { deleteAttendance, getAttendance, getClasses, getDashboardSettings, saveAttendance, updateAttendance } from "@/lib/api/dashboard";
 import type { AttendanceApiResponse, AttendanceEntry, AttendanceSummaryItem } from "@/lib/api-types";
-import { attendanceRecords, attendanceSummary } from "@/lib/mock-data";
+import { attendanceRecords, attendanceSummary, teacherProfile } from "@/lib/mock-data";
+import { getCurrentDateInputValue } from "@/lib/utils";
 
 const statusOptions = [
   { code: "H", label: "Hadir" },
@@ -33,17 +34,47 @@ const defaultSummary: AttendanceSummaryItem[] = attendanceSummary.map((item) => 
 }));
 
 export function DashboardAbsensiForm() {
+  const [subjectOptions, setSubjectOptions] = useState([teacherProfile.role]);
   const [classOptions, setClassOptions] = useState(["VII-A", "VIII-B", "IX-A"]);
   const [filters, setFilters] = useState({
-    attendanceDate: "2026-04-20",
+    attendanceDate: getCurrentDateInputValue(),
     className: "VII-A",
-    subject: "Matematika",
+    subject: teacherProfile.role,
     meeting: "Pertemuan 1",
   });
   const [entries, setEntries] = useState<AttendanceEntry[]>(defaultEntries);
   const [summary, setSummary] = useState<AttendanceSummaryItem[]>(defaultSummary);
+  const [history, setHistory] = useState<AttendanceApiResponse["history"]>([]);
   const [feedback, setFeedback] = useState("");
+  const [activeRecordId, setActiveRecordId] = useState<string | null>(null);
+  const [deletingRecordId, setDeletingRecordId] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [isDeleting, startDeleting] = useTransition();
+
+  useEffect(() => {
+    let active = true;
+
+    getDashboardSettings()
+      .then((response) => {
+        if (!active) {
+          return;
+        }
+
+        const nextSubjects = response.profile.subjects.length > 0 ? response.profile.subjects : [teacherProfile.role];
+        setSubjectOptions(nextSubjects);
+        setFilters((current) => ({
+          ...current,
+          subject: nextSubjects.includes(current.subject) ? current.subject : nextSubjects[0],
+        }));
+      })
+      .catch(() => {
+        // Keep fallback teacher subjects.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -56,6 +87,21 @@ export function DashboardAbsensiForm() {
       .then((response) => {
         if (active) {
           setClassOptions(response.classOptions.length > 0 ? response.classOptions : ["VII-A", "VIII-B", "IX-A"]);
+          setSubjectOptions(response.subjectOptions.length > 0 ? response.subjectOptions : [teacherProfile.role]);
+          setFilters((current) => {
+            const nextClassName = response.activeClassName || current.className;
+            const nextSubject = response.activeSubject || current.subject;
+
+            if (nextClassName === current.className && nextSubject === current.subject) {
+              return current;
+            }
+
+            return {
+              ...current,
+              className: nextClassName,
+              subject: nextSubject,
+            };
+          });
         }
       })
       .catch(() => {
@@ -78,6 +124,8 @@ export function DashboardAbsensiForm() {
 
         setEntries(response.entries);
         setSummary(response.summary);
+        setHistory(response.history);
+        setActiveRecordId(response.activeRecordId);
       })
       .catch(() => {
         // Keep fallback data.
@@ -99,15 +147,57 @@ export function DashboardAbsensiForm() {
 
     startTransition(async () => {
       try {
-        const response = await saveAttendance({
-          ...filters,
-          entries,
-        });
+        const response = activeRecordId
+          ? await updateAttendance({
+              id: activeRecordId,
+              ...filters,
+              entries,
+            })
+          : await saveAttendance({
+              ...filters,
+              entries,
+            });
 
         setSummary(response.summary);
+        setHistory(response.history);
+        setActiveRecordId(response.activeRecordId);
         setFeedback(response.message);
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "Absensi belum dapat disimpan.");
+      }
+    });
+  };
+
+  const handleEdit = (item: AttendanceApiResponse["history"][number]) => {
+    setFeedback("");
+    setActiveRecordId(item.id);
+    setFilters({
+      attendanceDate: item.attendanceDate,
+      className: item.className,
+      subject: item.subject,
+      meeting: item.meeting,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (id: string) => {
+    setFeedback("");
+    setDeletingRecordId(id);
+
+    startDeleting(async () => {
+      try {
+        const response = await deleteAttendance({ id });
+        setHistory(response.history);
+        setFeedback(response.message);
+
+        const latest = await getAttendance(filters);
+        setEntries(latest.entries);
+        setSummary(latest.summary);
+        setActiveRecordId(latest.activeRecordId);
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Absensi belum dapat dihapus.");
+      } finally {
+        setDeletingRecordId("");
       }
     });
   };
@@ -129,47 +219,78 @@ export function DashboardAbsensiForm() {
       ) : null}
 
       <Card className="p-6 md:p-7">
-        <div className="grid gap-4 md:grid-cols-4">
-          <div>
-            <Label htmlFor="attendance-date">Tanggal</Label>
-            <Input
-              id="attendance-date"
-              type="date"
-              value={filters.attendanceDate}
-              onChange={(event) => setFilters((current) => ({ ...current, attendanceDate: event.target.value }))}
-            />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="grid gap-4 md:grid-cols-4">
+            <div>
+              <Label htmlFor="attendance-date">Tanggal</Label>
+              <Input
+                id="attendance-date"
+                type="date"
+                value={filters.attendanceDate}
+                onChange={(event) => setFilters((current) => ({ ...current, attendanceDate: event.target.value }))}
+              />
+            </div>
+            <div>
+              <Label htmlFor="attendance-class">Kelas</Label>
+              <Select
+                id="attendance-class"
+                value={filters.className}
+                onChange={(event) => setFilters((current) => ({ ...current, className: event.target.value }))}
+              >
+                {classOptions.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="attendance-subject">Mata pelajaran</Label>
+              {subjectOptions.length > 1 ? (
+                <Select
+                  id="attendance-subject"
+                  value={filters.subject}
+                  onChange={(event) => setFilters((current) => ({ ...current, subject: event.target.value }))}
+                >
+                  {subjectOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </Select>
+              ) : (
+                <Input id="attendance-subject" value={filters.subject} readOnly />
+              )}
+            </div>
+            <div>
+              <Label htmlFor="attendance-meeting">Pertemuan</Label>
+              <Input
+                id="attendance-meeting"
+                value={filters.meeting}
+                placeholder="Contoh: Pertemuan 5"
+                onChange={(event) => setFilters((current) => ({ ...current, meeting: event.target.value }))}
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="attendance-class">Kelas</Label>
-            <Select
-              id="attendance-class"
-              value={filters.className}
-              onChange={(event) => setFilters((current) => ({ ...current, className: event.target.value }))}
+
+          {activeRecordId ? (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                setActiveRecordId(null);
+                setFilters((current) => ({
+                  ...current,
+                  attendanceDate: getCurrentDateInputValue(),
+                }));
+              }}
             >
-              {classOptions.map((option) => (
-                <option key={option}>{option}</option>
-              ))}
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="attendance-subject">Mata pelajaran</Label>
-            <Input
-              id="attendance-subject"
-              value={filters.subject}
-              placeholder="Contoh: Matematika"
-              onChange={(event) => setFilters((current) => ({ ...current, subject: event.target.value }))}
-            />
-          </div>
-          <div>
-            <Label htmlFor="attendance-meeting">Pertemuan</Label>
-            <Input
-              id="attendance-meeting"
-              value={filters.meeting}
-              placeholder="Contoh: Pertemuan 5"
-              onChange={(event) => setFilters((current) => ({ ...current, meeting: event.target.value }))}
-            />
-          </div>
+              Batal edit
+            </Button>
+          ) : null}
         </div>
+
+        {activeRecordId ? (
+          <div className="mt-4 rounded-[20px] border border-[#d6c28f] bg-[#fff8ea] px-4 py-3 text-[13px] text-[#6f5b26] dark:border-[#8e7c4e] dark:bg-[#2b271e] dark:text-[#eadba9]">
+            Mode edit aktif. Saat disimpan, data absensi yang dipilih akan diperbarui.
+          </div>
+        ) : null}
       </Card>
 
       <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
@@ -200,7 +321,7 @@ export function DashboardAbsensiForm() {
               <h2 className="mt-1 text-2xl font-semibold">Daftar kehadiran</h2>
             </div>
             <Button type="button" variant="ghost" onClick={handleSave} aria-busy={isPending}>
-              {isPending ? "Menyimpan..." : "Simpan absensi"}
+              {isPending ? "Menyimpan..." : activeRecordId ? "Perbarui absensi" : "Simpan absensi"}
             </Button>
           </div>
 
@@ -240,6 +361,48 @@ export function DashboardAbsensiForm() {
           </div>
         </Card>
       </section>
+
+      <Card className="p-6 md:p-7">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Riwayat absensi</p>
+            <h2 className="mt-1 text-2xl font-semibold">Absensi terbaru</h2>
+          </div>
+          <div className="rounded-full border border-border bg-card px-3 py-1 text-sm text-muted-foreground">
+            {history.length} sesi
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          {history.map((item) => (
+            <div key={item.id} className="rounded-[24px] border border-border bg-[#fcfaf7] p-5 dark:bg-muted/20">
+              <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">
+                    {item.attendanceDate} - {item.className} - {item.subject}
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold">{item.meeting}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{item.total} siswa tercatat pada sesi ini.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="ghost" onClick={() => handleEdit(item)}>
+                    Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-[#a24a35] hover:bg-[#fff1ec] hover:text-[#8d3d2a] dark:text-[#f0b8aa] dark:hover:bg-[#36201a]"
+                    onClick={() => handleDelete(item.id)}
+                    aria-busy={isDeleting}
+                  >
+                    {isDeleting && deletingRecordId === item.id ? "Menghapus..." : "Hapus"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }

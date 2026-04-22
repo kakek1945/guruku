@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const [profile, setProfile] = useState<DashboardSettingsProfile>({
     name: teacherProfile.name,
     role: teacherProfile.role,
+    subjects: [teacherProfile.role],
     school: teacherProfile.school,
     nip: teacherProfile.nip,
     email: teacherProfile.email,

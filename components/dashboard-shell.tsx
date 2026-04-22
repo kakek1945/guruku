@@ -32,6 +32,7 @@ export function DashboardShell({ children }: DashboardShellProps) {
   const [profile, setProfile] = useState<DashboardSettingsProfile>({
     name: teacherProfile.name,
     role: teacherProfile.role,
+    subjects: [teacherProfile.role],
     school: teacherProfile.school,
     nip: teacherProfile.nip,
     email: teacherProfile.email,

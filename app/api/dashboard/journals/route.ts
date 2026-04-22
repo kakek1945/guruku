@@ -7,6 +7,32 @@ import { journals } from "@/lib/db/schema";
 import { formatDisplayDate } from "@/lib/server/dashboard-content";
 import { getSessionFromRequest } from "@/lib/server/dashboard";
 
+function mapJournalHistoryItem(entry: typeof journals.$inferSelect) {
+  return {
+    id: entry.id,
+    date: formatDisplayDate(entry.entryDate),
+    className: entry.className,
+    subject: entry.subject,
+    hours: entry.hours,
+    topic: entry.topic,
+    goal: entry.goal,
+    activity: entry.activity,
+    note: entry.note || "-",
+    status: entry.status,
+    entryDate: entry.entryDate,
+  };
+}
+
+async function getLatestJournalHistory(authUserId: string) {
+  const history = await db.query.journals.findMany({
+    where: eq(journals.authUserId, authUserId),
+    orderBy: [desc(journals.entryDate), desc(journals.createdAt)],
+    limit: 12,
+  });
+
+  return history.map(mapJournalHistoryItem);
+}
+
 export async function GET(request: Request) {
   const session = await getSessionFromRequest(request);
 
@@ -48,19 +74,7 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    history: history.map((entry) => ({
-      id: entry.id,
-      date: formatDisplayDate(entry.entryDate),
-      className: entry.className,
-      subject: entry.subject,
-      hours: entry.hours,
-      topic: entry.topic,
-      goal: entry.goal,
-      activity: entry.activity,
-      note: entry.note || "-",
-      status: entry.status,
-      entryDate: entry.entryDate,
-    })),
+    history: history.map(mapJournalHistoryItem),
   });
 }
 
@@ -101,26 +115,87 @@ export async function POST(request: Request) {
     updatedAt: new Date(),
   });
 
-  const history = await db.query.journals.findMany({
-    where: eq(journals.authUserId, session.user.id),
-    orderBy: [desc(journals.entryDate), desc(journals.createdAt)],
-    limit: 12,
-  });
-
   return NextResponse.json({
     message: body.status === "draft" ? "Draft jurnal berhasil disimpan." : "Jurnal berhasil disimpan.",
-    history: history.map((entry) => ({
-      id: entry.id,
-      date: formatDisplayDate(entry.entryDate),
-      className: entry.className,
-      subject: entry.subject,
-      hours: entry.hours,
-      topic: entry.topic,
-      goal: entry.goal,
-      activity: entry.activity,
-      note: entry.note || "-",
-      status: entry.status,
-      entryDate: entry.entryDate,
-    })),
+    history: await getLatestJournalHistory(session.user.id),
+  });
+}
+
+export async function PUT(request: Request) {
+  const session = await getSessionFromRequest(request);
+
+  if (!session) {
+    return NextResponse.json({ message: "Silakan masuk terlebih dahulu." }, { status: 401 });
+  }
+
+  const body = (await request.json()) as {
+    id: string;
+    entryDate: string;
+    hours: string;
+    className: string;
+    subject: string;
+    topic: string;
+    goal: string;
+    activity: string;
+    note?: string;
+    status?: string;
+  };
+
+  if (!body.id || !body.entryDate || !body.hours || !body.className || !body.subject || !body.topic) {
+    return NextResponse.json({ message: "Lengkapi tanggal, jam, kelas, mapel, dan materi." }, { status: 400 });
+  }
+
+  const updatedRows = await db
+    .update(journals)
+    .set({
+      entryDate: body.entryDate,
+      hours: body.hours,
+      className: body.className,
+      subject: body.subject,
+      topic: body.topic,
+      goal: body.goal || "-",
+      activity: body.activity || "-",
+      note: body.note || null,
+      status: body.status === "draft" ? "draft" : "published",
+      updatedAt: new Date(),
+    })
+    .where(and(eq(journals.id, body.id), eq(journals.authUserId, session.user.id)))
+    .returning({ id: journals.id });
+
+  if (updatedRows.length === 0) {
+    return NextResponse.json({ message: "Jurnal yang ingin diperbarui tidak ditemukan." }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    message: "Jurnal berhasil diperbarui.",
+    history: await getLatestJournalHistory(session.user.id),
+  });
+}
+
+export async function DELETE(request: Request) {
+  const session = await getSessionFromRequest(request);
+
+  if (!session) {
+    return NextResponse.json({ message: "Silakan masuk terlebih dahulu." }, { status: 401 });
+  }
+
+  const body = (await request.json()) as { id: string };
+
+  if (!body.id) {
+    return NextResponse.json({ message: "Pilih jurnal yang ingin dihapus." }, { status: 400 });
+  }
+
+  const deletedRows = await db
+    .delete(journals)
+    .where(and(eq(journals.id, body.id), eq(journals.authUserId, session.user.id)))
+    .returning({ id: journals.id });
+
+  if (deletedRows.length === 0) {
+    return NextResponse.json({ message: "Jurnal yang ingin dihapus tidak ditemukan." }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    message: "Jurnal berhasil dihapus.",
+    history: await getLatestJournalHistory(session.user.id),
   });
 }

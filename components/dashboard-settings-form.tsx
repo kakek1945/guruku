@@ -17,6 +17,7 @@ import { teacherProfile as defaultTeacherProfile } from "@/lib/mock-data";
 const defaultProfile: DashboardSettingsProfile = {
   name: defaultTeacherProfile.name,
   role: defaultTeacherProfile.role,
+  subjects: [defaultTeacherProfile.role],
   school: defaultTeacherProfile.school,
   nip: defaultTeacherProfile.nip,
   email: defaultTeacherProfile.email,
@@ -41,6 +42,7 @@ export function DashboardSettingsForm() {
   const router = useRouter();
   const profileInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<DashboardSettingsProfile>(defaultProfile);
+  const [subjectInput, setSubjectInput] = useState(defaultTeacherProfile.role);
   const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
@@ -62,6 +64,7 @@ export function DashboardSettingsForm() {
         }
 
         setProfile(response.profile);
+        setSubjectInput(response.profile.subjects.join("\n"));
         setAccountForm((current) => ({
           ...current,
           username: response.accountUsername,
@@ -114,7 +117,8 @@ export function DashboardSettingsForm() {
     startSaving(async () => {
       const formData = new FormData();
       formData.set("name", profile.name);
-      formData.set("role", profile.role);
+      formData.set("role", subjectInput);
+      formData.set("subjects", subjectInput);
       formData.set("nip", profile.nip);
       formData.set("email", profile.email);
       formData.set("phone", profile.phone);
@@ -130,6 +134,7 @@ export function DashboardSettingsForm() {
         const response = await saveDashboardSettings(formData);
 
         setProfile(response.profile);
+        setSubjectInput(response.profile.subjects.join("\n"));
         setSelectedProfileFile(null);
         if (profileInputRef.current) {
           profileInputRef.current.value = "";
@@ -247,12 +252,16 @@ export function DashboardSettingsForm() {
                       onChange={(event) => handleChange("name", event.target.value)}
                     />
                   </Field>
-                  <Field label="Mata pelajaran" htmlFor="teacher-role">
-                    <Input
+                  <Field label="Mapel yang diampu" htmlFor="teacher-role">
+                    <Textarea
                       id="teacher-role"
-                      value={profile.role}
-                      onChange={(event) => handleChange("role", event.target.value)}
+                      value={subjectInput}
+                      onChange={(event) => setSubjectInput(event.target.value)}
+                      placeholder={"Contoh:\nMatematika\nIPA"}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Isi satu mapel per baris. Kalau guru mengampu lebih dari satu mapel, semuanya akan otomatis muncul di kelas, jurnal, dan absensi.
+                    </p>
                   </Field>
                 </div>
 

@@ -4,7 +4,7 @@ function createThumbnail(bg: string, _accent: string) {
 
 export const teacherProfile = {
   name: "Admin GuruKu",
-  role: "Administrator",
+  role: "Mapel belum diatur",
   school: "SMP Negeri Kep. Meranti",
   nip: "",
   email: "admin@guruku",

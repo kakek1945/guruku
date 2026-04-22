@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { teacherProfiles, user } from "@/lib/db/schema";
 import { teacherProfile as defaultTeacherProfile } from "@/lib/mock-data";
+import { serializeTeacherSubjects } from "@/lib/teacher-subjects";
 
 const PUBLIC_UPLOADS_ROOT = path.join(process.cwd(), "public", "uploads");
 
@@ -53,7 +54,7 @@ export async function ensureTeacherProfile(authUserId: string) {
     .values({
       authUserId,
       name: authUser.name || defaultTeacherProfile.name,
-      role: defaultTeacherProfile.role,
+      role: serializeTeacherSubjects([defaultTeacherProfile.role]),
       school: defaultTeacherProfile.school,
       nip: defaultTeacherProfile.nip,
       email: authUser.email || defaultTeacherProfile.email,

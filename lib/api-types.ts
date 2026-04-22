@@ -51,6 +51,7 @@ export type DashboardOverviewApiResponse = {
 export type DashboardSettingsProfile = {
   name: string;
   role: string;
+  subjects: string[];
   school: string;
   nip: string;
   email: string;
@@ -126,6 +127,7 @@ export type AttendanceHistoryItem = {
 };
 
 export type AttendanceApiResponse = {
+  activeRecordId: string | null;
   entries: AttendanceEntry[];
   summary: AttendanceSummaryItem[];
   history: AttendanceHistoryItem[];
@@ -205,7 +207,9 @@ export type ClassesApiResponse = {
     semester: string;
   };
   activeClassName: string;
+  activeSubject: string;
   classOptions: string[];
+  subjectOptions: string[];
   classAssignments: Array<{
     className: string;
     subject: string;
@@ -221,6 +225,11 @@ export type ClassesApiResponse = {
 };
 
 export type DeleteClassResponse = {
+  message: string;
+  classOptions: string[];
+};
+
+export type ClassMutationResponse = {
   message: string;
   classOptions: string[];
 };

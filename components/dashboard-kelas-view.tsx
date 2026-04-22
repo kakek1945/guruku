@@ -9,15 +9,17 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { deleteClass, getClasses, importDashboardStudents } from "@/lib/api/dashboard";
+import { deleteClass, getClasses, importDashboardStudents, saveClass, updateClass } from "@/lib/api/dashboard";
 import type { ClassesApiResponse } from "@/lib/api-types";
-import { academicFilters, classAssignments, studentCsvTemplateColumns, studentRoster } from "@/lib/mock-data";
+import { academicFilters, classAssignments, studentCsvTemplateColumns, studentRoster, teacherProfile } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
 const defaultData: ClassesApiResponse = {
   filters: academicFilters,
   activeClassName: "VII-A",
+  activeSubject: teacherProfile.role,
   classOptions: ["VII-A", "VIII-B", "IX-A"],
+  subjectOptions: [teacherProfile.role],
   classAssignments,
   roster: studentRoster,
 };
@@ -32,21 +34,25 @@ export function DashboardKelasView() {
     schoolYear: academicFilters.schoolYear,
     semester: academicFilters.semester,
     className: "VII-A",
+    subject: teacherProfile.role,
     search: "",
   });
   const [data, setData] = useState<ClassesApiResponse>(defaultData);
+  const [classFormName, setClassFormName] = useState("");
   const [selectedCsvFile, setSelectedCsvFile] = useState<File | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
+  const [editingClassName, setEditingClassName] = useState<string | null>(null);
   const [deletingClassName, setDeletingClassName] = useState("");
   const [isImporting, startImporting] = useTransition();
   const [isDeleting, startDeleting] = useTransition();
+  const [isSavingClass, startSavingClass] = useTransition();
 
   useEffect(() => {
     let active = true;
 
     getClasses({
       className: filters.className,
-      subject: "",
+      subject: filters.subject,
       search: filters.search,
       schoolYear: filters.schoolYear,
       semester: filters.semester,
@@ -58,7 +64,13 @@ export function DashboardKelasView() {
 
         setData(response);
         if (response.activeClassName && response.activeClassName !== filters.className) {
-          setFilters((current) => ({ ...current, className: response.activeClassName }));
+          setFilters((current) => ({
+            ...current,
+            className: response.activeClassName,
+            subject: response.activeSubject || current.subject,
+          }));
+        } else if (response.activeSubject && response.activeSubject !== filters.subject) {
+          setFilters((current) => ({ ...current, subject: response.activeSubject }));
         } else if (!response.classOptions.includes(filters.className) && response.classOptions[0]) {
           setFilters((current) => ({ ...current, className: response.classOptions[0] }));
         }
@@ -70,7 +82,7 @@ export function DashboardKelasView() {
     return () => {
       active = false;
     };
-  }, [filters.className, filters.search, filters.schoolYear, filters.semester]);
+  }, [filters.className, filters.search, filters.schoolYear, filters.semester, filters.subject]);
 
   const handleDownloadTemplate = () => {
     const blob = new Blob([buildTemplateCsv()], { type: "text/csv;charset=utf-8" });
@@ -115,7 +127,7 @@ export function DashboardKelasView() {
 
         const latest = await getClasses({
           className: nextClassName,
-          subject: "",
+          subject: filters.subject,
           search: "",
           schoolYear: filters.schoolYear,
           semester: filters.semester,
@@ -162,7 +174,7 @@ export function DashboardKelasView() {
 
         const latest = await getClasses({
           className: nextClassName,
-          subject: "",
+          subject: filters.subject,
           search: filters.search,
           schoolYear: filters.schoolYear,
           semester: filters.semester,
@@ -182,6 +194,70 @@ export function DashboardKelasView() {
         setDeletingClassName("");
       }
     });
+  };
+
+  const handleSaveClass = () => {
+    const trimmedClassName = classFormName.trim();
+
+    if (!trimmedClassName) {
+      setFeedback({
+        tone: "error",
+        message: "Nama kelas wajib diisi.",
+      });
+      return;
+    }
+
+    setFeedback(null);
+
+    startSavingClass(async () => {
+      try {
+        const response = editingClassName
+          ? await updateClass({
+              currentClassName: editingClassName,
+              newClassName: trimmedClassName,
+              schoolYear: filters.schoolYear,
+              semester: filters.semester,
+            })
+          : await saveClass({
+              className: trimmedClassName,
+              schoolYear: filters.schoolYear,
+              semester: filters.semester,
+            });
+
+        setFeedback({
+          tone: "success",
+          message: response.message,
+        });
+
+        const latest = await getClasses({
+          className: trimmedClassName,
+          subject: filters.subject,
+          search: filters.search,
+          schoolYear: filters.schoolYear,
+          semester: filters.semester,
+        });
+
+        setData(latest);
+        setFilters((current) => ({
+          ...current,
+          className: latest.activeClassName || trimmedClassName,
+          subject: latest.activeSubject || current.subject,
+        }));
+        setClassFormName("");
+        setEditingClassName(null);
+      } catch (error) {
+        setFeedback({
+          tone: "error",
+          message: error instanceof Error ? error.message : "Kelas belum dapat disimpan.",
+        });
+      }
+    });
+  };
+
+  const handleStartEdit = (className: string) => {
+    setEditingClassName(className);
+    setClassFormName(className);
+    setFeedback(null);
   };
 
   return (
@@ -260,6 +336,53 @@ export function DashboardKelasView() {
             </div>
           </div>
         </div>
+
+        <div className="mt-5 rounded-[20px] border border-border bg-muted/15 p-4">
+          <div className="grid gap-4 lg:grid-cols-[1fr_220px_auto] lg:items-end">
+            <div>
+              <Label htmlFor="class-form-name">{editingClassName ? "Ubah nama kelas" : "Tambah kelas baru"}</Label>
+              <Input
+                id="class-form-name"
+                value={classFormName}
+                onChange={(event) => setClassFormName(event.target.value)}
+                placeholder="Contoh: VII-A"
+              />
+            </div>
+            <div>
+              <Label htmlFor="class-subject">Mapel aktif</Label>
+              {data.subjectOptions.length > 1 ? (
+                <Select
+                  id="class-subject"
+                  value={filters.subject}
+                  onChange={(event) => setFilters((current) => ({ ...current, subject: event.target.value }))}
+                >
+                  {data.subjectOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </Select>
+              ) : (
+                <Input id="class-subject" value={filters.subject} readOnly />
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button type="button" onClick={handleSaveClass} aria-busy={isSavingClass}>
+                {isSavingClass ? "Menyimpan..." : editingClassName ? "Perbarui kelas" : "Tambah kelas"}
+              </Button>
+              {editingClassName ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => {
+                    setEditingClassName(null);
+                    setClassFormName("");
+                  }}
+                >
+                  Batal
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </div>
       </Card>
 
       <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
@@ -281,6 +404,15 @@ export function DashboardKelasView() {
                 ))}
               </Select>
             </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground">
+            <span className="rounded-full border border-border bg-white px-3 py-1 dark:bg-card">
+              Mapel aktif: {filters.subject}
+            </span>
+            <span className="rounded-full border border-border bg-white px-3 py-1 dark:bg-card">
+              CRUD kelas aktif di halaman ini
+            </span>
           </div>
 
           <div className="mt-5 grid gap-3">
@@ -308,7 +440,10 @@ export function DashboardKelasView() {
                   <p className="text-[13px] text-muted-foreground">{item.subject}</p>
                 </button>
 
-                <div className="flex justify-end">
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Button type="button" variant="ghost" className="h-8 px-3 text-[12px]" onClick={() => handleStartEdit(item.className)}>
+                    Edit
+                  </Button>
                   <Button
                     type="button"
                     variant="ghost"

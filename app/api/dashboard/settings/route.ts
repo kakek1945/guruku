@@ -5,6 +5,7 @@ import { count, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { students, teacherProfiles, user } from "@/lib/db/schema";
 import { displayAuthLogin } from "@/lib/auth-login";
+import { formatTeacherRoleLabel, getTeacherSubjects, serializeTeacherSubjects } from "@/lib/teacher-subjects";
 import {
   ensureTeacherProfile,
   getSessionFromRequest,
@@ -15,9 +16,12 @@ import {
 export const runtime = "nodejs";
 
 function profileResponse(profile: Awaited<ReturnType<typeof ensureTeacherProfile>>) {
+  const subjects = getTeacherSubjects(profile.role);
+
   return {
     name: profile.name,
-    role: profile.role,
+    role: formatTeacherRoleLabel(profile.role),
+    subjects,
     school: profile.school,
     nip: profile.nip || "",
     email: profile.email,
@@ -66,6 +70,7 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const name = getFormValue(formData, "name");
   const role = getFormValue(formData, "role");
+  const subjectsValue = getFormValue(formData, "subjects");
   const nip = getFormValue(formData, "nip");
   const email = getFormValue(formData, "email");
   const phone = getFormValue(formData, "phone");
@@ -73,9 +78,11 @@ export async function POST(request: Request) {
   const announcementTitle = getFormValue(formData, "announcementTitle");
   const announcementBody = getFormValue(formData, "announcementBody");
 
-  if (!name || !role) {
+  const subjects = getTeacherSubjects(subjectsValue || role);
+
+  if (!name || subjects.length === 0) {
     return NextResponse.json(
-      { message: "Nama guru dan mata pelajaran wajib diisi." },
+      { message: "Nama guru dan mapel yang diampu wajib diisi." },
       { status: 400 },
     );
   }
@@ -101,7 +108,7 @@ export async function POST(request: Request) {
     .update(teacherProfiles)
     .set({
       name,
-      role,
+      role: serializeTeacherSubjects(subjects),
       school: currentProfile.school,
       nip: nip || null,
       email,

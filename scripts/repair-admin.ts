@@ -80,7 +80,7 @@ async function createOrRepairAdmin() {
     .values({
       authUserId: createdUser.id,
       name: "Admin GuruKu",
-      role: "Administrator",
+      role: "Mapel belum diatur",
       school: "SMP Negeri Kep. Meranti",
       nip: null,
       email: loginAlias,
@@ -93,7 +93,7 @@ async function createOrRepairAdmin() {
       target: teacherProfiles.authUserId,
       set: {
         name: "Admin GuruKu",
-        role: "Administrator",
+        role: "Mapel belum diatur",
         school: "SMP Negeri Kep. Meranti",
         nip: null,
         email: loginAlias,

@@ -1,6 +1,7 @@
 import { apiRequest } from "@/lib/api-client";
 import type {
   AttendanceApiResponse,
+  ClassMutationResponse,
   ClassesApiResponse,
   DashboardAccountMutationResponse,
   DeleteClassResponse,
@@ -56,6 +57,20 @@ export function saveJournal(body: Record<string, unknown>) {
   });
 }
 
+export function updateJournal(body: Record<string, unknown>) {
+  return apiRequest<JournalsApiResponse & { message: string }>("/api/dashboard/journals", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteJournal(body: Record<string, unknown>) {
+  return apiRequest<JournalsApiResponse & { message: string }>("/api/dashboard/journals", {
+    method: "DELETE",
+    body: JSON.stringify(body),
+  });
+}
+
 export function getAttendance(searchParams: Record<string, string>) {
   return apiRequest<AttendanceApiResponse>("/api/dashboard/attendance", {
     searchParams,
@@ -63,8 +78,32 @@ export function getAttendance(searchParams: Record<string, string>) {
 }
 
 export function saveAttendance(body: Record<string, unknown>) {
-  return apiRequest<{ message: string; summary: AttendanceApiResponse["summary"] }>("/api/dashboard/attendance", {
+  return apiRequest<{
+    message: string;
+    summary: AttendanceApiResponse["summary"];
+    history: AttendanceApiResponse["history"];
+    activeRecordId: string | null;
+  }>("/api/dashboard/attendance", {
     method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateAttendance(body: Record<string, unknown>) {
+  return apiRequest<{
+    message: string;
+    summary: AttendanceApiResponse["summary"];
+    history: AttendanceApiResponse["history"];
+    activeRecordId: string | null;
+  }>("/api/dashboard/attendance", {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}
+
+export function deleteAttendance(body: Record<string, unknown>) {
+  return apiRequest<{ message: string; history: AttendanceApiResponse["history"] }>("/api/dashboard/attendance", {
+    method: "DELETE",
     body: JSON.stringify(body),
   });
 }
@@ -107,6 +146,20 @@ export function saveMediaOrVideo(formData: FormData) {
 export function getClasses(searchParams: Record<string, string>) {
   return apiRequest<ClassesApiResponse>("/api/dashboard/classes", {
     searchParams,
+  });
+}
+
+export function saveClass(body: Record<string, unknown>) {
+  return apiRequest<ClassMutationResponse>("/api/dashboard/classes", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function updateClass(body: Record<string, unknown>) {
+  return apiRequest<ClassMutationResponse>("/api/dashboard/classes", {
+    method: "PUT",
+    body: JSON.stringify(body),
   });
 }
 

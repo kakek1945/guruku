@@ -63,7 +63,7 @@ async function ensureAdminUser() {
     .values({
       authUserId: createdUser.id,
       name: "Admin GuruKu",
-      role: "Administrator",
+      role: "Mapel belum diatur",
       school: "SMP Negeri Kep. Meranti",
       nip: null,
       email: "admin@guruku",
@@ -76,7 +76,7 @@ async function ensureAdminUser() {
       target: teacherProfiles.authUserId,
       set: {
         name: "Admin GuruKu",
-        role: "Administrator",
+        role: "Mapel belum diatur",
         school: "SMP Negeri Kep. Meranti",
         nip: null,
         email: "admin@guruku",

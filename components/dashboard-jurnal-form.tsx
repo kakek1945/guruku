@@ -11,9 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { getClasses, getDashboardSettings, getJournals, saveJournal } from "@/lib/api/dashboard";
+import { deleteJournal, getClasses, getDashboardSettings, getJournals, saveJournal, updateJournal } from "@/lib/api/dashboard";
 import type { DashboardSettingsProfile, JournalHistoryItem, JournalsApiResponse } from "@/lib/api-types";
 import { academicFilters, journalHistory, teacherProfile } from "@/lib/mock-data";
+import { getCurrentDateInputValue } from "@/lib/utils";
 
 const defaultHistory: JournalHistoryItem[] = journalHistory.map((entry, index) => ({
   id: `${entry.date}-${entry.className}-${index}`,
@@ -29,20 +30,24 @@ const defaultHistory: JournalHistoryItem[] = journalHistory.map((entry, index) =
   entryDate: "2026-04-19",
 }));
 
-const initialForm = {
-  entryDate: "2026-04-20",
-  hours: "",
-  className: "VII-A",
-  subject: "Matematika",
-  topic: "",
-  goal: "",
-  activity: "",
-  note: "",
-};
+function createInitialForm(subject = teacherProfile.role, className = "VII-A") {
+  return {
+    entryDate: getCurrentDateInputValue(),
+    hours: "",
+    className,
+    subject,
+    topic: "",
+    goal: "",
+    activity: "",
+    note: "",
+  };
+}
+
+type JournalForm = ReturnType<typeof createInitialForm>;
 
 const initialReportFilters = {
   mode: "month",
-  month: "2026-04",
+  month: getCurrentDateInputValue().slice(0, 7),
   schoolYear: academicFilters.schoolYear,
   semester: academicFilters.semester,
 };
@@ -82,11 +87,12 @@ function wrapPdfText(text: string, maxWidth: number, font: { widthOfTextAtSize(t
 }
 
 export function DashboardJurnalForm() {
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(() => createInitialForm());
   const [history, setHistory] = useState<JournalHistoryItem[]>(defaultHistory);
   const [profile, setProfile] = useState<DashboardSettingsProfile>({
     name: teacherProfile.name,
     role: teacherProfile.role,
+    subjects: [teacherProfile.role],
     school: teacherProfile.school,
     nip: teacherProfile.nip,
     email: teacherProfile.email,
@@ -97,11 +103,15 @@ export function DashboardJurnalForm() {
     announcementTitle: teacherProfile.announcementTitle,
     announcementBody: teacherProfile.announcementBody,
   });
+  const [subjectOptions, setSubjectOptions] = useState([teacherProfile.role]);
   const [classOptions, setClassOptions] = useState(["VII-A", "VIII-B", "IX-A"]);
   const [reportFilters, setReportFilters] = useState(initialReportFilters);
   const [feedback, setFeedback] = useState<string>("");
+  const [editingJournalId, setEditingJournalId] = useState<string | null>(null);
+  const [deletingJournalId, setDeletingJournalId] = useState("");
   const [isPending, startTransition] = useTransition();
   const [isExporting, startExporting] = useTransition();
+  const [isDeleting, startDeleting] = useTransition();
 
   const fetchReportHistory = async (filters?: Partial<typeof initialReportFilters>) => {
     const activeFilters = {
@@ -145,6 +155,13 @@ export function DashboardJurnalForm() {
       .then((response) => {
         if (active) {
           setProfile(response.profile);
+          setSubjectOptions(response.profile.subjects.length > 0 ? response.profile.subjects : [teacherProfile.role]);
+          setForm((current) => ({
+            ...current,
+            subject: response.profile.subjects.includes(current.subject)
+              ? current.subject
+              : response.profile.subjects[0] || current.subject,
+          }));
         }
       })
       .catch(() => {
@@ -167,6 +184,24 @@ export function DashboardJurnalForm() {
       .then((response) => {
         if (active) {
           setClassOptions(response.classOptions.length > 0 ? response.classOptions : ["VII-A", "VIII-B", "IX-A"]);
+          setSubjectOptions(response.subjectOptions.length > 0 ? response.subjectOptions : [teacherProfile.role]);
+          setForm((current) => {
+            const nextClassName =
+              response.activeClassName && response.classOptions.includes(response.activeClassName)
+                ? response.activeClassName
+                : current.className;
+            const nextSubject = response.activeSubject || current.subject;
+
+            if (nextClassName === current.className && nextSubject === current.subject) {
+              return current;
+            }
+
+            return {
+              ...current,
+              className: nextClassName,
+              subject: nextSubject,
+            };
+          });
         }
       })
       .catch(() => {
@@ -178,7 +213,7 @@ export function DashboardJurnalForm() {
     };
   }, [form.className, form.subject]);
 
-  const handleChange = (key: keyof typeof initialForm, value: string) => {
+  const handleChange = (key: keyof JournalForm, value: string) => {
     setForm((current) => ({
       ...current,
       [key]: value,
@@ -447,22 +482,63 @@ export function DashboardJurnalForm() {
 
     startTransition(async () => {
       try {
-        const response = await saveJournal({
-          ...form,
-          status,
-        });
+        const response = editingJournalId
+          ? await updateJournal({
+              id: editingJournalId,
+              ...form,
+              status,
+            })
+          : await saveJournal({
+              ...form,
+              status,
+            });
 
         setHistory(response.history);
         setFeedback(response.message);
+        setEditingJournalId(null);
         if (status === "published") {
-          setForm((current) => ({
-            ...initialForm,
-            className: current.className,
-            subject: current.subject,
-          }));
+          setForm((current) => createInitialForm(current.subject, current.className));
         }
       } catch (error) {
         setFeedback(error instanceof Error ? error.message : "Jurnal belum dapat disimpan.");
+      }
+    });
+  };
+
+  const handleEdit = (entry: JournalHistoryItem) => {
+    setFeedback("");
+    setEditingJournalId(entry.id);
+    setForm({
+      entryDate: entry.entryDate,
+      hours: entry.hours,
+      className: entry.className,
+      subject: entry.subject,
+      topic: entry.topic,
+      goal: entry.goal,
+      activity: entry.activity,
+      note: entry.note === "-" ? "" : entry.note,
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleDelete = (id: string) => {
+    setFeedback("");
+    setDeletingJournalId(id);
+
+    startDeleting(async () => {
+      try {
+        const response = await deleteJournal({ id });
+        setHistory(response.history);
+        setFeedback(response.message);
+
+        if (editingJournalId === id) {
+          setEditingJournalId(null);
+          setForm((current) => createInitialForm(current.subject, current.className));
+        }
+      } catch (error) {
+        setFeedback(error instanceof Error ? error.message : "Jurnal belum dapat dihapus.");
+      } finally {
+        setDeletingJournalId("");
       }
     });
   };
@@ -492,8 +568,30 @@ export function DashboardJurnalForm() {
 
       <section className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
         <Card className="p-6 md:p-7">
-          <p className="text-sm text-muted-foreground">Form input cepat</p>
-          <h2 className="mt-1 text-2xl font-semibold">Isi jurnal mengajar harian</h2>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Form input cepat</p>
+              <h2 className="mt-1 text-2xl font-semibold">Isi jurnal mengajar harian</h2>
+            </div>
+            {editingJournalId ? (
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setEditingJournalId(null);
+                  setForm((current) => createInitialForm(current.subject, current.className));
+                }}
+              >
+                Batal edit
+              </Button>
+            ) : null}
+          </div>
+
+          {editingJournalId ? (
+            <div className="mt-4 rounded-[20px] border border-[#d6c28f] bg-[#fff8ea] px-4 py-3 text-[13px] text-[#6f5b26] dark:border-[#8e7c4e] dark:bg-[#2b271e] dark:text-[#eadba9]">
+              Mode edit aktif. Perubahan akan memperbarui jurnal yang dipilih.
+            </div>
+          ) : null}
 
           <form className="mt-6 grid gap-4" onSubmit={(event) => event.preventDefault()}>
             <div className="grid gap-4 md:grid-cols-2">
@@ -528,7 +626,15 @@ export function DashboardJurnalForm() {
               </div>
               <div>
                 <Label htmlFor="mapel">Mata pelajaran</Label>
-                <Input id="mapel" value={form.subject} onChange={(event) => handleChange("subject", event.target.value)} placeholder="Contoh: Matematika" />
+                {subjectOptions.length > 1 ? (
+                  <Select id="mapel" value={form.subject} onChange={(event) => handleChange("subject", event.target.value)}>
+                    {subjectOptions.map((option) => (
+                      <option key={option}>{option}</option>
+                    ))}
+                  </Select>
+                ) : (
+                  <Input id="mapel" value={form.subject} readOnly />
+                )}
               </div>
             </div>
 
@@ -551,10 +657,10 @@ export function DashboardJurnalForm() {
 
             <div className="flex flex-col gap-3 pt-2 sm:flex-row">
               <Button type="button" onClick={() => handleSubmit("published")} aria-busy={isPending}>
-                {isPending ? "Menyimpan..." : "Simpan jurnal"}
+                {isPending ? "Menyimpan..." : editingJournalId ? "Perbarui jurnal" : "Simpan jurnal"}
               </Button>
               <Button type="button" variant="ghost" onClick={() => handleSubmit("draft")} aria-busy={isPending}>
-                Simpan sebagai draft
+                {editingJournalId ? "Simpan edit sebagai draft" : "Simpan sebagai draft"}
               </Button>
             </div>
           </form>
@@ -666,6 +772,20 @@ export function DashboardJurnalForm() {
                   <p>
                     <span className="font-medium text-foreground">Catatan:</span> {entry.note}
                   </p>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Button type="button" variant="ghost" onClick={() => handleEdit(entry)}>
+                    Edit
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-[#a24a35] hover:bg-[#fff1ec] hover:text-[#8d3d2a] dark:text-[#f0b8aa] dark:hover:bg-[#36201a]"
+                    onClick={() => handleDelete(entry.id)}
+                    aria-busy={isDeleting}
+                  >
+                    {isDeleting && deletingJournalId === entry.id ? "Menghapus..." : "Hapus"}
+                  </Button>
                 </div>
               </div>
             ))}
