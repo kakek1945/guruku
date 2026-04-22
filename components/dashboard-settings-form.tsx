@@ -307,26 +307,25 @@ export function DashboardSettingsForm() {
                   </p>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
-                  <Field label="Judul pengumuman" htmlFor="announcement-title">
-                    <Input
-                      id="announcement-title"
-                      value={profile.announcementTitle}
-                      onChange={(event) => handleChange("announcementTitle", event.target.value)}
-                      placeholder="Contoh: Informasi pembelajaran minggu ini"
-                    />
-                  </Field>
+                <Field label="Judul pengumuman" htmlFor="announcement-title">
+                  <Input
+                    id="announcement-title"
+                    className="max-w-[420px]"
+                    value={profile.announcementTitle}
+                    onChange={(event) => handleChange("announcementTitle", event.target.value)}
+                    placeholder="Contoh: Informasi pembelajaran minggu ini"
+                  />
+                </Field>
 
-                  <Field label="Isi pengumuman" htmlFor="announcement-body">
-                    <Textarea
-                      id="announcement-body"
-                      className="min-h-[260px] md:min-h-[320px]"
-                      value={profile.announcementBody}
-                      onChange={(event) => handleChange("announcementBody", event.target.value)}
-                      placeholder="Tuliskan informasi yang ingin dibaca siswa di beranda."
-                    />
-                  </Field>
-                </div>
+                <Field label="Isi pengumuman" htmlFor="announcement-body">
+                  <Textarea
+                    id="announcement-body"
+                    className="min-h-[260px] w-full md:min-h-[320px]"
+                    value={profile.announcementBody}
+                    onChange={(event) => handleChange("announcementBody", event.target.value)}
+                    placeholder="Tuliskan informasi yang ingin dibaca siswa di beranda."
+                  />
+                </Field>
               </div>
             </div>
 
