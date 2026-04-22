@@ -145,10 +145,6 @@ export function DashboardShell({ children }: DashboardShellProps) {
               </div>
               <div className="flex items-center gap-3">
                 <ThemeToggle className="hidden sm:inline-flex" />
-                <div className="hidden rounded-full bg-secondary px-3 py-2 text-sm text-secondary-foreground md:flex md:items-center md:gap-2">
-                  <AppIcon name="calendar" className="h-[17px] w-[17px]" />
-                  Senin, 20 April 2026
-                </div>
                 <Badge className="hidden w-fit border border-[#e4d7ba] bg-[#fff8ea] text-accent-foreground sm:inline-flex">
                   {profile.role}
                 </Badge>
