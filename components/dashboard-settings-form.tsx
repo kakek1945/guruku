@@ -120,9 +120,6 @@ export function DashboardSettingsForm() {
       formData.set("role", subjectInput);
       formData.set("subjects", subjectInput);
       formData.set("nip", profile.nip);
-      formData.set("email", profile.email);
-      formData.set("phone", profile.phone);
-      formData.set("address", profile.address);
       formData.set("announcementTitle", profile.announcementTitle);
       formData.set("announcementBody", profile.announcementBody);
 
@@ -272,33 +269,6 @@ export function DashboardSettingsForm() {
                     onChange={(event) => handleChange("nip", event.target.value)}
                   />
                 </Field>
-
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Email kontak" htmlFor="teacher-email">
-                    <Input
-                      id="teacher-email"
-                      value={profile.email}
-                      onChange={(event) => handleChange("email", event.target.value)}
-                      placeholder="Opsional untuk kontak profil"
-                    />
-                  </Field>
-                  <Field label="Nomor HP" htmlFor="teacher-phone">
-                    <Input
-                      id="teacher-phone"
-                      value={profile.phone}
-                      onChange={(event) => handleChange("phone", event.target.value)}
-                    />
-                  </Field>
-                </div>
-
-                <Field label="Alamat singkat" htmlFor="teacher-address">
-                  <Textarea
-                    id="teacher-address"
-                    value={profile.address}
-                    onChange={(event) => handleChange("address", event.target.value)}
-                  />
-                </Field>
-
                 <div className="grid gap-4 rounded-[24px] border border-border bg-muted/15 p-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">Pengumuman guru</p>

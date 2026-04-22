@@ -72,9 +72,6 @@ export async function POST(request: Request) {
   const role = getFormValue(formData, "role");
   const subjectsValue = getFormValue(formData, "subjects");
   const nip = getFormValue(formData, "nip");
-  const email = getFormValue(formData, "email");
-  const phone = getFormValue(formData, "phone");
-  const address = getFormValue(formData, "address");
   const announcementTitle = getFormValue(formData, "announcementTitle");
   const announcementBody = getFormValue(formData, "announcementBody");
 
@@ -111,9 +108,9 @@ export async function POST(request: Request) {
       role: serializeTeacherSubjects(subjects),
       school: currentProfile.school,
       nip: nip || null,
-      email,
-      phone: phone || null,
-      address: address || null,
+      email: currentProfile.email,
+      phone: currentProfile.phone,
+      address: currentProfile.address,
       profileImage,
       logoImage,
       announcementTitle: announcementTitle || null,

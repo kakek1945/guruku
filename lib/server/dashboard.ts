@@ -81,6 +81,14 @@ function normalizeImageExtension(fileName: string) {
   return ".png";
 }
 
+async function toInlineImageDataUrl(file: File) {
+  const arrayBuffer = await file.arrayBuffer();
+  const mimeType = file.type || "image/png";
+  const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+  return `data:${mimeType};base64,${base64}`;
+}
+
 export async function savePublicImageUpload(
   file: File,
   authUserId: string,
@@ -92,10 +100,15 @@ export async function savePublicImageUpload(
   const targetPath = path.join(uploadDir, uniqueName);
   const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-  await mkdir(uploadDir, { recursive: true });
-  await writeFile(targetPath, fileBuffer);
+  try {
+    await mkdir(uploadDir, { recursive: true });
+    await writeFile(targetPath, fileBuffer);
 
-  return `/uploads/${folderName}/${uniqueName}`;
+    return `/uploads/${folderName}/${uniqueName}`;
+  } catch {
+    // Fallback for environments where the filesystem is not persistently writable, such as Vercel runtime.
+    return toInlineImageDataUrl(file);
+  }
 }
 
 export async function savePublicFileUpload(
