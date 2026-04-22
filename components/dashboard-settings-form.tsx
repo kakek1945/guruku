@@ -318,7 +318,7 @@ export function DashboardSettingsForm() {
                   <Field label="Isi pengumuman" htmlFor="announcement-body">
                     <Textarea
                       id="announcement-body"
-                      className="min-h-[160px]"
+                      className="min-h-[260px] md:min-h-[320px]"
                       value={profile.announcementBody}
                       onChange={(event) => handleChange("announcementBody", event.target.value)}
                       placeholder="Tuliskan informasi yang ingin dibaca siswa di beranda."
