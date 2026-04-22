@@ -219,46 +219,46 @@ export function DashboardSettingsForm() {
           </div>
 
           <form className="mt-6 grid gap-6" onSubmit={handleSave}>
-            <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
-              <div className="rounded-[28px] border border-border bg-muted/20 p-5">
-                <div className="flex flex-col items-center text-center">
-                  <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#fff7e2] shadow-sm">
-                    {profilePreview ? (
-                      <img src={profilePreview} alt="Foto profil guru" className="h-full w-full object-cover" />
-                    ) : (
-                      <AdminAvatar className="h-24 w-24" />
-                    )}
-                  </div>
-                  <p className="mt-4 text-base font-semibold">Foto profil guru</p>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                    Gunakan foto yang jelas agar tampilan profil di dashboard lebih rapi.
-                  </p>
-                </div>
-
-                <Input
-                  id="profile-image"
-                  ref={profileInputRef}
-                  className="mt-5"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => setSelectedProfileFile(event.target.files?.[0] || null)}
-                />
-
-                <div className="mt-4 grid gap-3 rounded-[22px] border border-border bg-card px-4 py-4">
-                  <div>
-                    <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Preview profil</p>
-                    <p className="mt-1 text-sm font-medium text-foreground">{profile.name || "Nama guru belum diisi"}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {profile.nip ? `NIP ${profile.nip}` : "NIP belum diisi"}
+            <div className="grid gap-6">
+              <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
+                <div className="rounded-[28px] border border-border bg-muted/20 p-5">
+                  <div className="flex flex-col items-center text-center">
+                    <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#fff7e2] shadow-sm">
+                      {profilePreview ? (
+                        <img src={profilePreview} alt="Foto profil guru" className="h-full w-full object-cover" />
+                      ) : (
+                        <AdminAvatar className="h-24 w-24" />
+                      )}
+                    </div>
+                    <p className="mt-4 text-base font-semibold">Foto profil guru</p>
+                    <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                      Gunakan foto yang jelas agar tampilan profil di dashboard lebih rapi.
                     </p>
                   </div>
-                  <div className="rounded-[18px] bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
-                    Format yang disarankan: JPG, PNG, atau WEBP dengan ukuran proporsional.
+
+                  <Input
+                    id="profile-image"
+                    ref={profileInputRef}
+                    className="mt-5"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => setSelectedProfileFile(event.target.files?.[0] || null)}
+                  />
+
+                  <div className="mt-4 grid gap-3 rounded-[22px] border border-border bg-card px-4 py-4">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Preview profil</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">{profile.name || "Nama guru belum diisi"}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {profile.nip ? `NIP ${profile.nip}` : "NIP belum diisi"}
+                      </p>
+                    </div>
+                    <div className="rounded-[18px] bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                      Format yang disarankan: JPG, PNG, atau WEBP dengan ukuran proporsional.
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="grid gap-5">
                 <div className="grid gap-5 rounded-[28px] border border-border bg-card p-5 md:p-6">
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">Data utama guru</p>
@@ -297,15 +297,17 @@ export function DashboardSettingsForm() {
                     </p>
                   </Field>
                 </div>
+              </div>
 
-                <div className="grid gap-4 rounded-[28px] border border-border bg-muted/15 p-5 md:p-6">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-foreground">Pengumuman guru</p>
-                    <p className="text-xs text-muted-foreground">
-                      Area ini ditampilkan terpisah agar isi pengumuman tidak bercampur dengan biodata.
-                    </p>
-                  </div>
+              <div className="grid gap-4 rounded-[28px] border border-border bg-muted/15 p-5 md:p-6">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">Pengumuman guru</p>
+                  <p className="text-xs text-muted-foreground">
+                    Area ini dibuat melebar penuh agar lebih nyaman saat menulis pengumuman panjang.
+                  </p>
+                </div>
 
+                <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)] lg:items-start">
                   <Field label="Judul pengumuman" htmlFor="announcement-title">
                     <Input
                       id="announcement-title"
