@@ -219,61 +219,90 @@ export function DashboardSettingsForm() {
           </div>
 
           <form className="mt-6 grid gap-6" onSubmit={handleSave}>
-            <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
-              <div className="rounded-[24px] border border-border bg-muted/20 p-4 text-center">
-                <div className="mx-auto flex h-28 w-28 items-center justify-center overflow-hidden rounded-full bg-[#fff7e2]">
-                  {profilePreview ? (
-                    <img src={profilePreview} alt="Foto profil guru" className="h-full w-full object-cover" />
-                  ) : (
-                    <AdminAvatar className="h-20 w-20" />
-                  )}
+            <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
+              <div className="rounded-[28px] border border-border bg-muted/20 p-5">
+                <div className="flex flex-col items-center text-center">
+                  <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#fff7e2] shadow-sm">
+                    {profilePreview ? (
+                      <img src={profilePreview} alt="Foto profil guru" className="h-full w-full object-cover" />
+                    ) : (
+                      <AdminAvatar className="h-24 w-24" />
+                    )}
+                  </div>
+                  <p className="mt-4 text-base font-semibold">Foto profil guru</p>
+                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                    Gunakan foto yang jelas agar tampilan profil di dashboard lebih rapi.
+                  </p>
                 </div>
-                <p className="mt-3 text-sm font-medium">Foto profil guru</p>
+
                 <Input
                   id="profile-image"
                   ref={profileInputRef}
-                  className="mt-3"
+                  className="mt-5"
                   type="file"
                   accept="image/*"
                   onChange={(event) => setSelectedProfileFile(event.target.files?.[0] || null)}
                 />
-                <p className="mt-2 text-xs text-muted-foreground">JPG, PNG, atau WEBP.</p>
+
+                <div className="mt-4 grid gap-3 rounded-[22px] border border-border bg-card px-4 py-4">
+                  <div>
+                    <p className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground">Preview profil</p>
+                    <p className="mt-1 text-sm font-medium text-foreground">{profile.name || "Nama guru belum diisi"}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {profile.nip ? `NIP ${profile.nip}` : "NIP belum diisi"}
+                    </p>
+                  </div>
+                  <div className="rounded-[18px] bg-muted/50 px-3 py-2 text-xs leading-5 text-muted-foreground">
+                    Format yang disarankan: JPG, PNG, atau WEBP dengan ukuran proporsional.
+                  </div>
+                </div>
               </div>
 
-              <div className="grid gap-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <Field label="Nama guru" htmlFor="teacher-name">
-                    <Input
-                      id="teacher-name"
-                      value={profile.name}
-                      onChange={(event) => handleChange("name", event.target.value)}
-                    />
-                  </Field>
+              <div className="grid gap-5">
+                <div className="grid gap-5 rounded-[28px] border border-border bg-card p-5 md:p-6">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-foreground">Data utama guru</p>
+                    <p className="text-xs text-muted-foreground">
+                      Lengkapi nama, mapel yang diampu, dan nomor induk pada satu area yang lebih ringkas.
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
+                    <Field label="Nama guru" htmlFor="teacher-name">
+                      <Input
+                        id="teacher-name"
+                        value={profile.name}
+                        onChange={(event) => handleChange("name", event.target.value)}
+                      />
+                    </Field>
+                    <Field label="NIP / nomor induk" htmlFor="teacher-nip">
+                      <Input
+                        id="teacher-nip"
+                        value={profile.nip}
+                        onChange={(event) => handleChange("nip", event.target.value)}
+                      />
+                    </Field>
+                  </div>
+
                   <Field label="Mapel yang diampu" htmlFor="teacher-role">
                     <Textarea
                       id="teacher-role"
+                      className="min-h-[132px]"
                       value={subjectInput}
                       onChange={(event) => setSubjectInput(event.target.value)}
                       placeholder={"Contoh:\nMatematika\nIPA"}
                     />
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs leading-5 text-muted-foreground">
                       Isi satu mapel per baris. Kalau guru mengampu lebih dari satu mapel, semuanya akan otomatis muncul di kelas, jurnal, dan absensi.
                     </p>
                   </Field>
                 </div>
 
-                <Field label="NIP / nomor induk" htmlFor="teacher-nip">
-                  <Input
-                    id="teacher-nip"
-                    value={profile.nip}
-                    onChange={(event) => handleChange("nip", event.target.value)}
-                  />
-                </Field>
-                <div className="grid gap-4 rounded-[24px] border border-border bg-muted/15 p-4">
+                <div className="grid gap-4 rounded-[28px] border border-border bg-muted/15 p-5 md:p-6">
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-foreground">Pengumuman guru</p>
                     <p className="text-xs text-muted-foreground">
-                      Isi pengumuman ini akan tampil di halaman depan untuk siswa.
+                      Area ini ditampilkan terpisah agar isi pengumuman tidak bercampur dengan biodata.
                     </p>
                   </div>
 
@@ -289,6 +318,7 @@ export function DashboardSettingsForm() {
                   <Field label="Isi pengumuman" htmlFor="announcement-body">
                     <Textarea
                       id="announcement-body"
+                      className="min-h-[160px]"
                       value={profile.announcementBody}
                       onChange={(event) => handleChange("announcementBody", event.target.value)}
                       placeholder="Tuliskan informasi yang ingin dibaca siswa di beranda."
