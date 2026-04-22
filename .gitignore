@@ -11,3 +11,5 @@ coverage
 .env.test.local
 .env.production.local
 public/uploads
+
+.vercel
