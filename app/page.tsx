@@ -231,15 +231,6 @@ export default function HomePage() {
 
                 <div className="relative h-full p-6 md:p-7">
                   <div className="space-y-5">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
-                        Beranda siswa
-                      </Badge>
-                      <div className="rounded-full border border-[#ddcfaf] bg-white/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-[#e8dfc5]">
-                        Update kelas setiap saat
-                      </div>
-                    </div>
-
                     <div className="space-y-4">
                       <h1 className="max-w-[11ch] font-serif text-[2.7rem] font-semibold leading-[0.95] tracking-[-0.045em] text-[#1b2b26] md:text-[3.8rem] dark:text-[#f6f2e8]">
                         <span className="block">Belajar tanpa</span>
