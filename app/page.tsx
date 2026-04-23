@@ -155,18 +155,14 @@ function AnnouncementHeroCard({
           <div>
             <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
-          <div className="rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+          <div className="relative rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+            <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/16 bg-[#fff4cf] text-sm font-bold text-[#184337] shadow-sm">
+              !
+            </div>
             <p className="line-clamp-5 text-[15px] font-medium leading-7 text-white md:text-base">
               {detailWithSource}
             </p>
           </div>
-        </div>
-
-        <div className="mt-5 flex items-center gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 transition duration-300 group-hover:bg-white/16">
-            <AppIcon name="info" className="h-4 w-4" />
-          </div>
-          <p className="text-sm text-white/82">Informasi penting untuk dibaca sebelum siswa membuka materi.</p>
         </div>
       </div>
     </Card>
