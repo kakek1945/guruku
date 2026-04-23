@@ -23,6 +23,7 @@ const defaultProfile: DashboardSettingsProfile = {
   email: defaultTeacherProfile.email,
   phone: defaultTeacherProfile.phone,
   address: defaultTeacherProfile.address,
+  heroTickerText: defaultTeacherProfile.heroTickerText,
   profileImage: null,
   logoImage: null,
   announcementTitle: defaultTeacherProfile.announcementTitle,
@@ -120,6 +121,7 @@ export function DashboardSettingsForm() {
       formData.set("role", subjectInput);
       formData.set("subjects", subjectInput);
       formData.set("nip", profile.nip);
+      formData.set("heroTickerText", profile.heroTickerText);
       formData.set("announcementTitle", profile.announcementTitle);
       formData.set("announcementBody", profile.announcementBody);
 
@@ -297,6 +299,25 @@ export function DashboardSettingsForm() {
                     </p>
                   </Field>
                 </div>
+              </div>
+
+              <div className="grid gap-4 rounded-[28px] border border-border bg-muted/15 p-5 md:p-6">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-foreground">Kata-kata hari ini</p>
+                  <p className="text-xs text-muted-foreground">
+                    Teks ini akan tampil sebagai tulisan berjalan di hero beranda siswa.
+                  </p>
+                </div>
+
+                <Field label="Teks berjalan hero" htmlFor="hero-ticker-text">
+                  <Textarea
+                    id="hero-ticker-text"
+                    className="min-h-[110px] w-full"
+                    value={profile.heroTickerText}
+                    onChange={(event) => handleChange("heroTickerText", event.target.value)}
+                    placeholder="Contoh: Selamat belajar hari ini, tetap semangat, disiplin, dan jangan lupa cek pengumuman guru."
+                  />
+                </Field>
               </div>
 
               <div className="grid gap-4 rounded-[28px] border border-border bg-muted/15 p-5 md:p-6">

@@ -98,6 +98,7 @@ export function DashboardJurnalForm() {
     email: teacherProfile.email,
     phone: teacherProfile.phone,
     address: teacherProfile.address,
+    heroTickerText: teacherProfile.heroTickerText,
     profileImage: null,
     logoImage: null,
     announcementTitle: teacherProfile.announcementTitle,

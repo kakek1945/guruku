@@ -27,6 +27,7 @@ function profileResponse(profile: Awaited<ReturnType<typeof ensureTeacherProfile
     email: profile.email,
     phone: profile.phone || "",
     address: profile.address || "",
+    heroTickerText: profile.address || "",
     profileImage: profile.profileImage || null,
     logoImage: profile.logoImage || null,
     announcementTitle: profile.announcementTitle || "",
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
   const role = getFormValue(formData, "role");
   const subjectsValue = getFormValue(formData, "subjects");
   const nip = getFormValue(formData, "nip");
+  const heroTickerText = getFormValue(formData, "heroTickerText");
   const announcementTitle = getFormValue(formData, "announcementTitle");
   const announcementBody = getFormValue(formData, "announcementBody");
 
@@ -110,7 +112,7 @@ export async function POST(request: Request) {
       nip: nip || null,
       email: currentProfile.email,
       phone: currentProfile.phone,
-      address: currentProfile.address,
+      address: heroTickerText || null,
       profileImage,
       logoImage,
       announcementTitle: announcementTitle || null,

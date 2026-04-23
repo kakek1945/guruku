@@ -212,6 +212,10 @@ export async function GET() {
     .slice(0, 3);
 
   return NextResponse.json({
+    heroTickerText:
+      latestTeacherProfile?.address ||
+      teacherProfile.heroTickerText ||
+      "Selamat belajar hari ini, tetap semangat, disiplin, dan jangan lupa cek pengumuman guru.",
     announcement:
       latestTeacherProfile?.announcementTitle || latestTeacherProfile?.announcementBody
         ? {

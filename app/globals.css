@@ -68,4 +68,30 @@
       radial-gradient(circle at top, hsl(158 34% 24% / 0.35), transparent 32%),
       linear-gradient(to bottom, hsl(var(--background)), hsl(var(--background)));
   }
+
+  .hero-marquee {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .hero-marquee-track {
+    display: inline-flex;
+    min-width: max-content;
+    gap: 3rem;
+    animation: hero-marquee-scroll 18s linear infinite;
+  }
+
+  .hero-marquee-track span {
+    display: inline-block;
+  }
+
+  @keyframes hero-marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      transform: translateX(calc(-50% - 1.5rem));
+    }
+  }
 }

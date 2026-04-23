@@ -10,6 +10,7 @@ export const teacherProfile = {
   email: "admin@guruku",
   phone: "",
   address: "",
+  heroTickerText: "Selamat belajar hari ini, baca pengumuman guru, cek materi terbaru, dan tetap semangat mengikuti pembelajaran di GuruKu.",
   announcementTitle: "Pengumuman guru",
   announcementBody: "Belum ada pengumuman.",
 };

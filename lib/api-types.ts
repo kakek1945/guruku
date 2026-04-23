@@ -1,4 +1,5 @@
 export type HomePageApiResponse = {
+  heroTickerText: string;
   announcement: {
     title: string;
     detail: string;
@@ -81,6 +82,7 @@ export type DashboardSettingsProfile = {
   email: string;
   phone: string;
   address: string;
+  heroTickerText: string;
   profileImage: string | null;
   logoImage: string | null;
   announcementTitle: string;
