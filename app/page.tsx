@@ -242,14 +242,14 @@ export default function HomePage() {
           </header>
 
           <div className="space-y-12 py-10 md:py-14">
-            <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr]">
-              <Card className="relative overflow-hidden border-[#eadbc4] p-0 shadow-[0_24px_70px_rgba(63,52,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
+            <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr] xl:items-stretch">
+              <Card className="relative h-full overflow-hidden border-[#eadbc4] p-0 shadow-[0_24px_70px_rgba(63,52,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,241,199,0.88),_transparent_35%),linear-gradient(145deg,_#fffdf8_0%,_#f8f0df_52%,_#f1e7d1_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(216,183,104,0.16),_transparent_28%),linear-gradient(145deg,_#14231f_0%,_#193229_55%,_#1d3a30_100%)]" />
                 <div className="absolute bottom-[-72px] left-[-28px] h-48 w-48 rounded-full bg-[#0f6b56]/10 blur-3xl dark:bg-[#3b8d78]/16" />
                 <div className="absolute right-[-40px] top-[-40px] h-36 w-36 rounded-full bg-[#f3d98e]/45 blur-3xl dark:bg-[#d5b45d]/14" />
 
-                <div className="relative h-full p-7 md:p-9">
-                  <div className="space-y-6">
+                <div className="relative h-full p-6 md:p-7">
+                  <div className="space-y-5">
                     <div className="flex flex-wrap items-center gap-3">
                       <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
                         Beranda siswa
@@ -260,11 +260,11 @@ export default function HomePage() {
                     </div>
 
                     <div className="space-y-4">
-                      <h1 className="max-w-[11ch] font-serif text-[3rem] font-semibold leading-[0.93] tracking-[-0.045em] text-[#1b2b26] md:text-[4.2rem] dark:text-[#f6f2e8]">
+                      <h1 className="max-w-[11ch] font-serif text-[2.7rem] font-semibold leading-[0.95] tracking-[-0.045em] text-[#1b2b26] md:text-[3.8rem] dark:text-[#f6f2e8]">
                         <span className="block">Belajar tanpa</span>
                         <span className="block">Batas</span>
                       </h1>
-                      <p className="max-w-xl text-base leading-7 text-[#495952] md:text-lg dark:text-[#d5d0c4]">
+                      <p className="max-w-xl text-[15px] leading-6 text-[#495952] md:text-base dark:text-[#d5d0c4]">
                         Pengumuman guru, materi, media, dan video pembelajaran tersusun rapi agar siswa langsung tahu apa yang perlu dibaca lebih dulu.
                       </p>
                     </div>
@@ -277,7 +277,7 @@ export default function HomePage() {
                       ].map((item) => (
                         <div
                           key={item.label}
-                          className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-4 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/88"
+                          className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-3.5 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/88"
                         >
                           <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
                             <AppIcon name={item.icon} className="h-4 w-4" />
@@ -285,7 +285,7 @@ export default function HomePage() {
                           <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
                             {item.label}
                           </p>
-                          <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
+                          <p className="mt-1.5 text-[1.8rem] font-semibold text-primary">{item.value}</p>
                         </div>
                       ))}
                     </div>
@@ -293,7 +293,7 @@ export default function HomePage() {
                 </div>
               </Card>
 
-              <div className="grid gap-4">
+              <div className="grid h-full gap-4 content-start">
                 <AnnouncementHeroCard {...data.announcement} />
 
                 <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
