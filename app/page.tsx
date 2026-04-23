@@ -129,6 +129,8 @@ function AnnouncementHeroCard({
   date,
   teacherName,
 }: HomePageApiResponse["announcement"]) {
+  const detailWithSource = `${detail} (info dari ${teacherName})`;
+
   return (
     <Card className="group relative overflow-hidden border-[#d8caac] p-0 transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,107,86,0.24)] dark:hover:shadow-[0_26px_70px_rgba(0,0,0,0.34)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.46),_transparent_30%),linear-gradient(160deg,_#155848_0%,_#0f6b56_44%,_#0d4f42_100%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.16),_transparent_28%),linear-gradient(160deg,_#112925_0%,_#12342d_48%,_#102722_100%)]" />
@@ -153,19 +155,18 @@ function AnnouncementHeroCard({
           <div>
             <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
-          <p className="line-clamp-4 text-sm leading-6 text-white/84 md:text-[14px]">{detail}</p>
+          <div className="rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+            <p className="line-clamp-5 text-[15px] font-medium leading-7 text-white md:text-base">
+              {detailWithSource}
+            </p>
+          </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 transition duration-300 group-hover:bg-white/16">
-              <AppIcon name="info" className="h-4 w-4" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">{teacherName}</p>
-              <p className="text-xs text-white/70">Guru pengampu</p>
-            </div>
+        <div className="mt-5 flex items-center gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 transition duration-300 group-hover:bg-white/16">
+            <AppIcon name="info" className="h-4 w-4" />
           </div>
+          <p className="text-sm text-white/82">Informasi penting untuk dibaca sebelum siswa membuka materi.</p>
         </div>
       </div>
     </Card>
