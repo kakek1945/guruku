@@ -127,10 +127,7 @@ function AnnouncementHeroCard({
   title,
   detail,
   date,
-  teacherName,
 }: HomePageApiResponse["announcement"]) {
-  const detailWithSource = `${detail} (info dari ${teacherName})`;
-
   return (
     <Card className="group relative overflow-hidden border-[#d8caac] p-0 transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,107,86,0.24)] dark:hover:shadow-[0_26px_70px_rgba(0,0,0,0.34)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.46),_transparent_30%),linear-gradient(160deg,_#155848_0%,_#0f6b56_44%,_#0d4f42_100%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.16),_transparent_28%),linear-gradient(160deg,_#112925_0%,_#12342d_48%,_#102722_100%)]" />
@@ -156,11 +153,11 @@ function AnnouncementHeroCard({
             <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
           <div className="relative mt-5 rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
-            <div className="absolute -top-3 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/14 bg-white/12 text-sm font-bold text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)] backdrop-blur animate-pulse">
+            <div className="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full border border-white/14 bg-white/12 text-sm font-bold text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)] backdrop-blur animate-pulse">
               !
             </div>
             <p className="line-clamp-5 text-[15px] font-medium leading-7 text-white md:text-base">
-              {detailWithSource}
+              {detail}
             </p>
           </div>
         </div>
