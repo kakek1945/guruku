@@ -249,7 +249,7 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="hidden gap-2.5 md:grid md:grid-cols-3">
                       {[
                         { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
                         { label: "Media baru", value: `${data.latestMedia.length}+`, icon: "media" as const },
@@ -257,15 +257,17 @@ export default function HomePage() {
                       ].map((item) => (
                         <div
                           key={item.label}
-                          className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-3.5 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/88"
+                          className="rounded-[22px] border border-[#ebdfc7] bg-white/88 px-3.5 py-3 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/88"
                         >
-                          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
-                            <AppIcon name={item.icon} className="h-4 w-4" />
+                          <div className="flex h-8 w-8 items-center justify-center rounded-[18px] bg-secondary text-primary">
+                            <AppIcon name={item.icon} className="h-3.5 w-3.5" />
                           </div>
-                          <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                          <p className="mt-2.5 text-[10px] uppercase tracking-[0.14em] text-muted-foreground md:text-[11px]">
                             {item.label}
                           </p>
-                          <p className="mt-1.5 text-[1.8rem] font-semibold text-primary">{item.value}</p>
+                          <p className="mt-1 text-[1.55rem] font-semibold leading-none text-primary md:text-[1.65rem]">
+                            {item.value}
+                          </p>
                         </div>
                       ))}
                     </div>
