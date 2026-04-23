@@ -184,26 +184,6 @@ function SectionTitle({ title, badge }: { title: string; badge: string }) {
   );
 }
 
-function RecapMetric({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: "jurnal" | "kelas" | "book" | "absensi" | "users" | "calendar";
-}) {
-  return (
-    <div className="rounded-[22px] border border-[#eadfc7] bg-white/88 px-4 py-4 shadow-sm dark:border-border dark:bg-[#183029]">
-      <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
-        <AppIcon name={icon} className="h-4 w-4" />
-      </div>
-      <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">{label}</p>
-      <p className="mt-2 text-2xl font-semibold text-primary">{value}</p>
-    </div>
-  );
-}
-
 export default function HomePage() {
   const [data, setData] = useState<HomePageApiResponse>(defaultHomeData);
 
@@ -355,24 +335,6 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-5 bg-white px-5 py-5 dark:bg-card">
-                    <div className="grid gap-3 md:grid-cols-3">
-                      <RecapMetric
-                        label="Jurnal"
-                        value={`${data.weeklyRecap.journal.totalEntries}`}
-                        icon="jurnal"
-                      />
-                      <RecapMetric
-                        label="Kelas aktif"
-                        value={`${data.weeklyRecap.journal.classCount}`}
-                        icon="kelas"
-                      />
-                      <RecapMetric
-                        label="Mapel"
-                        value={`${data.weeklyRecap.journal.subjectCount}`}
-                        icon="book"
-                      />
-                    </div>
-
                     <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-foreground">Catatan jurnal minggu ini</p>
