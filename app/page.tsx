@@ -109,6 +109,55 @@ function HeroTile({
   );
 }
 
+function AnnouncementHeroCard({
+  title,
+  detail,
+  date,
+  teacherName,
+}: HomePageApiResponse["announcement"]) {
+  return (
+    <Card className="relative overflow-hidden border-[#d8caac] p-0 shadow-[0_24px_70px_rgba(15,107,86,0.18)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.28)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.46),_transparent_30%),linear-gradient(160deg,_#155848_0%,_#0f6b56_44%,_#0d4f42_100%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.16),_transparent_28%),linear-gradient(160deg,_#112925_0%,_#12342d_48%,_#102722_100%)]" />
+      <div className="absolute right-[-28px] top-[-28px] h-28 w-28 rounded-full border border-white/14 bg-white/8 blur-sm" />
+
+      <div className="relative p-6 text-white md:p-7">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <Badge className="border-white/14 bg-white/10 text-white dark:border-white/12 dark:bg-white/10 dark:text-white">
+            Pengumuman guru
+          </Badge>
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-xs text-white/88 backdrop-blur">
+            <AppIcon name="bell" className="h-3.5 w-3.5" />
+            <span>{date}</span>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.22em] text-white/68">Pesan terbaru</p>
+            <h2 className="mt-3 text-[1.9rem] font-semibold leading-tight md:text-[2.3rem]">{title}</h2>
+          </div>
+          <p className="text-sm leading-7 text-white/84 md:text-[15px]">{detail}</p>
+        </div>
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-white/12 bg-white/10 px-4 py-4 backdrop-blur">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12">
+              <AppIcon name="info" className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="text-sm font-medium">{teacherName}</p>
+              <p className="text-xs text-white/70">Guru pengampu</p>
+            </div>
+          </div>
+          <div className="rounded-full border border-white/12 bg-[#fff4cf] px-3 py-1.5 text-xs font-medium text-[#184337]">
+            Penting dibaca siswa
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function SectionTitle({ title, badge }: { title: string; badge: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
@@ -156,92 +205,77 @@ export default function HomePage() {
           </header>
 
           <div className="space-y-12 py-10 md:py-14">
-            <div className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
-              <Card className="relative overflow-hidden border-[#eadbc4] p-0 shadow-[0_28px_70px_rgba(63,52,28,0.14)] dark:shadow-[0_28px_70px_rgba(0,0,0,0.28)]">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,241,199,0.95),_transparent_38%),linear-gradient(140deg,_#fffdf7_0%,_#f6efe0_48%,_#efe6d4_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(205,171,105,0.18),_transparent_30%),linear-gradient(145deg,_#11211d_0%,_#173129_52%,_#204238_100%)]" />
-                <div className="absolute right-[-52px] top-[-52px] h-40 w-40 rounded-full bg-[#f3d98e]/55 blur-3xl dark:bg-[#d5b45d]/15" />
-                <div className="absolute bottom-[-86px] left-[-20px] h-52 w-52 rounded-full bg-[#0f6b56]/12 blur-3xl dark:bg-[#3b8d78]/18" />
+            <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr]">
+              <Card className="relative overflow-hidden border-[#eadbc4] p-0 shadow-[0_24px_70px_rgba(63,52,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,241,199,0.88),_transparent_35%),linear-gradient(145deg,_#fffdf8_0%,_#f8f0df_52%,_#f1e7d1_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(216,183,104,0.16),_transparent_28%),linear-gradient(145deg,_#14231f_0%,_#193229_55%,_#1d3a30_100%)]" />
+                <div className="absolute bottom-[-72px] left-[-28px] h-48 w-48 rounded-full bg-[#0f6b56]/10 blur-3xl dark:bg-[#3b8d78]/16" />
+                <div className="absolute right-[-40px] top-[-40px] h-36 w-36 rounded-full bg-[#f3d98e]/45 blur-3xl dark:bg-[#d5b45d]/14" />
 
                 <div className="relative h-full p-7 md:p-9">
-                  <div className="flex h-full flex-col justify-between gap-8">
-                    <div className="space-y-6">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
-                          Pengumuman utama
-                        </Badge>
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#d8cfb8] bg-white/75 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-[#f3ebd0]">
-                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0f6b56] text-white">
-                            <AppIcon name="bell" className="h-3.5 w-3.5" />
-                          </span>
-                          <span>{data.announcement.date}</span>
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
+                        Beranda siswa
+                      </Badge>
+                      <div className="rounded-full border border-[#ddcfaf] bg-white/80 px-3 py-1.5 text-xs text-muted-foreground shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-[#e8dfc5]">
+                        Update kelas setiap saat
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h1 className="max-w-[11ch] font-serif text-[3rem] font-semibold leading-[0.93] tracking-[-0.045em] text-[#1b2b26] md:text-[4.2rem] dark:text-[#f6f2e8]">
+                        <span className="block">Belajar tanpa</span>
+                        <span className="block">Batas</span>
+                      </h1>
+                      <p className="max-w-xl text-base leading-7 text-[#495952] md:text-lg dark:text-[#d5d0c4]">
+                        Pengumuman guru, materi, media, dan video pembelajaran tersusun rapi agar siswa langsung tahu apa yang perlu dibaca lebih dulu.
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {[
+                        { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
+                        { label: "Media baru", value: `${data.latestMedia.length}+`, icon: "media" as const },
+                        { label: "Video baru", value: `${data.latestVideos.length}+`, icon: "video" as const },
+                      ].map((item) => (
+                        <div
+                          key={item.label}
+                          className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-4 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/88"
+                        >
+                          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
+                            <AppIcon name={item.icon} className="h-4 w-4" />
+                          </div>
+                          <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                            {item.label}
+                          </p>
+                          <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
                         </div>
-                      </div>
+                      ))}
+                    </div>
 
-                      <div className="space-y-4">
-                        <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#0f6b56] dark:text-[#f2d689]">
-                          Dari {data.announcement.teacherName}
-                        </p>
-                        <h1 className="max-w-[12ch] font-serif text-[3rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#1b2b26] md:text-[4.3rem] dark:text-[#f6f2e8]">
-                          Siswa langsung melihat arahan guru sejak halaman dibuka.
-                        </h1>
-                        <p className="max-w-2xl text-base leading-7 text-[#43534d] md:text-lg dark:text-[#d6d0c3]">
-                          Pengumuman penting kami taruh di panggung utama supaya perhatian siswa langsung tertuju ke pesan terbaru sebelum menjelajahi materi, media, dan video.
-                        </p>
-                      </div>
-
-                      <div className="rounded-[30px] border border-[#d7c8a9] bg-[#0f6b56] p-5 text-white shadow-[0_22px_60px_rgba(15,107,86,0.24)] dark:border-white/10 dark:bg-[#102f2a] dark:shadow-[0_22px_60px_rgba(0,0,0,0.28)] md:p-6">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                          <div className="space-y-3">
-                            <p className="text-xs uppercase tracking-[0.22em] text-white/72">Pesan guru</p>
-                            <div>
-                              <h2 className="text-2xl font-semibold leading-tight md:text-[2rem]">
-                                {data.announcement.title}
-                              </h2>
-                              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/82 md:text-base">
-                                {data.announcement.detail}
-                              </p>
-                            </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {[
+                        "Lihat pengumuman guru lebih dulu",
+                        "Lanjutkan ke materi dan video terbaru",
+                      ].map((item) => (
+                        <div
+                          key={item}
+                          className="flex items-center gap-3 rounded-[22px] border border-[#eadfc8] bg-white/76 px-4 py-3 text-sm text-[#415049] shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-[#d5d0c4]"
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0f6b56] text-white">
+                            <AppIcon name="info" className="h-3.5 w-3.5" />
                           </div>
-                          <div className="flex items-center gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white/88 backdrop-blur">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 text-white">
-                              <AppIcon name="info" className="h-4 w-4" />
-                            </div>
-                            <div>
-                              <p className="font-medium">Prioritas siswa</p>
-                              <p className="text-xs text-white/72">Baca dulu, lalu lanjut belajar</p>
-                            </div>
-                          </div>
+                          <span>{item}</span>
                         </div>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        {[
-                          { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
-                          { label: "Media baru", value: `${data.latestMedia.length}+`, icon: "media" as const },
-                          { label: "Video baru", value: `${data.latestVideos.length}+`, icon: "video" as const },
-                        ].map((item) => (
-                          <div
-                            key={item.label}
-                            className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-4 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/90"
-                          >
-                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
-                              <AppIcon name={item.icon} className="h-4 w-4" />
-                            </div>
-                            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                              {item.label}
-                            </p>
-                            <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
-                          </div>
-                        ))}
-                      </div>
+                      ))}
                     </div>
 
                     <div className="flex flex-wrap gap-3">
                       <Button href="#materi" size="lg">
-                        Mulai dari materi terbaru
+                        Mulai dari materi
                       </Button>
                       <Button href="#video" size="lg" variant="ghost">
-                        Lanjut ke video pembelajaran
+                        Buka video terbaru
                       </Button>
                     </div>
                   </div>
@@ -249,81 +283,39 @@ export default function HomePage() {
               </Card>
 
               <div className="grid gap-4">
-                <Card className="overflow-hidden border-[#eadbc4] bg-[#fffaf0] p-0 dark:bg-[#162823]">
-                  <div className="border-b border-[#e6d7b7] px-5 py-4 dark:border-white/10">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
-                          Pendukung pengumuman
-                        </p>
-                        <h2 className="mt-2 text-2xl font-semibold text-[#1b2b26] dark:text-[#f6f2e8]">
-                          Lanjutkan ke konten terbaru
-                        </h2>
-                      </div>
-                      <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
-                        Update kelas
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="grid gap-4 p-4">
-                    {featuredVideo ? (
+                <AnnouncementHeroCard {...data.announcement} />
+
+                <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
+                  {featuredVideo ? (
+                    <HeroTile
+                      label="Video unggulan"
+                      title={featuredVideo.title}
+                      meta={`Video terbaru - ${featuredVideo.publishedAt}`}
+                      image={featuredVideo.thumbnail}
+                      className="min-h-[320px]"
+                    />
+                  ) : null}
+
+                  <div className="grid gap-4">
+                    {featuredMaterial ? (
                       <HeroTile
-                        label="Video unggulan"
-                        title={featuredVideo.title}
-                        meta={`Video terbaru - ${featuredVideo.publishedAt}`}
-                        image={featuredVideo.thumbnail}
-                        className="min-h-[280px]"
+                        label="Materi inti"
+                        title={featuredMaterial.title}
+                        meta={`Materi - ${featuredMaterial.updatedAt}`}
+                        image={featuredMaterial.thumbnail}
+                        className="min-h-[152px]"
                       />
                     ) : null}
-                    <div className="grid gap-4 md:grid-cols-2">
-                      {featuredMaterial ? (
-                        <HeroTile
-                          label="Materi inti"
-                          title={featuredMaterial.title}
-                          meta={`Materi - ${featuredMaterial.updatedAt}`}
-                          image={featuredMaterial.thumbnail}
-                          className="min-h-[160px]"
-                        />
-                      ) : null}
-                      {featuredMedia ? (
-                        <HeroTile
-                          label="Media kelas"
-                          title={featuredMedia.title}
-                          meta={`Media - ${featuredMedia.uploadedAt}`}
-                          image={featuredMedia.thumbnail}
-                          className="min-h-[160px]"
-                        />
-                      ) : null}
-                    </div>
+                    {featuredMedia ? (
+                      <HeroTile
+                        label="Media kelas"
+                        title={featuredMedia.title}
+                        meta={`Media - ${featuredMedia.uploadedAt}`}
+                        image={featuredMedia.thumbnail}
+                        className="min-h-[152px]"
+                      />
+                    ) : null}
                   </div>
-                </Card>
-
-                <div className="grid gap-4 sm:grid-cols-3">
-                  {[
-                    {
-                      title: "Buka pengumuman",
-                      detail: "Fokus pertama siswa saat masuk ke halaman.",
-                    },
-                    {
-                      title: "Pilih materi",
-                      detail: "Setelah membaca info guru, siswa bisa lanjut belajar.",
-                    },
-                    {
-                      title: "Tonton video",
-                      detail: "Konten pendukung tetap terlihat tanpa menggeser fokus utama.",
-                    },
-                  ].map((item, index) => (
-                    <Card
-                      key={item.title}
-                      className="border-[#eadbc4] bg-white/88 p-5 shadow-[0_16px_40px_rgba(63,52,28,0.09)] dark:bg-card/90"
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-sm font-semibold text-primary">
-                        0{index + 1}
-                      </div>
-                      <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.detail}</p>
-                    </Card>
-                  ))}
                 </div>
               </div>
             </div>
