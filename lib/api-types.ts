@@ -21,19 +21,11 @@ export type HomePageApiResponse = {
     };
     attendance: {
       weekLabel: string;
-      totalMeetings: number;
-      studentMarked: number;
-      summary: Array<{
-        label: string;
-        value: number;
-        description: string;
-      }>;
-      latestItems: Array<{
+      absentStudents: Array<{
         attendanceDate: string;
+        studentName: string;
         className: string;
-        subject: string;
-        meeting: string;
-        total: number;
+        description: string;
       }>;
     };
   };

@@ -61,16 +61,20 @@ function getWeekRange(dateLabel: string) {
   };
 }
 
-function buildAttendanceSummary(entries: Array<{ status: string }>) {
-  return [
-    { label: "H", description: "Hadir" },
-    { label: "S", description: "Sakit" },
-    { label: "I", description: "Izin" },
-    { label: "A", description: "Alpha" },
-  ].map((item) => ({
-    ...item,
-    value: entries.filter((entry) => entry.status === item.label).length,
-  }));
+function formatAttendanceStatus(status: string) {
+  if (status === "S") {
+    return "Sakit";
+  }
+
+  if (status === "I") {
+    return "Izin";
+  }
+
+  if (status === "A") {
+    return "Alpha";
+  }
+
+  return "Hadir";
 }
 
 async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
@@ -128,10 +132,7 @@ async function getWeeklyAttendanceRecap(authUserId: string | null | undefined) {
   if (!authUserId) {
     return {
       weekLabel: "Pekan absensi terbaru",
-      totalMeetings: 0,
-      studentMarked: 0,
-      summary: buildAttendanceSummary([]),
-      latestItems: [],
+      absentStudents: [],
     };
   }
 
@@ -143,10 +144,7 @@ async function getWeeklyAttendanceRecap(authUserId: string | null | undefined) {
   if (!latestAttendance) {
     return {
       weekLabel: "Pekan absensi terbaru",
-      totalMeetings: 0,
-      studentMarked: 0,
-      summary: buildAttendanceSummary([]),
-      latestItems: [],
+      absentStudents: [],
     };
   }
 
@@ -160,20 +158,20 @@ async function getWeeklyAttendanceRecap(authUserId: string | null | undefined) {
     orderBy: [desc(attendanceRegisters.attendanceDate), desc(attendanceRegisters.updatedAt)],
   });
 
-  const allEntries = weeklyRegisters.flatMap((item) => item.entries);
+  const absentStudents = weeklyRegisters.flatMap((item) =>
+    item.entries
+      .filter((entry) => entry.status !== "H")
+      .map((entry) => ({
+        attendanceDate: formatDisplayDate(item.attendanceDate),
+        studentName: entry.name,
+        className: item.className,
+        description: formatAttendanceStatus(entry.status),
+      })),
+  );
 
   return {
     weekLabel: range.weekLabel,
-    totalMeetings: weeklyRegisters.length,
-    studentMarked: allEntries.length,
-    summary: buildAttendanceSummary(allEntries),
-    latestItems: weeklyRegisters.slice(0, 3).map((item) => ({
-      attendanceDate: formatDisplayDate(item.attendanceDate),
-      className: item.className,
-      subject: item.subject,
-      meeting: item.meeting,
-      total: item.entries.length,
-    })),
+    absentStudents,
   };
 }
 

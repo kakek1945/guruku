@@ -51,15 +51,7 @@ const defaultHomeData: HomePageApiResponse = {
     },
     attendance: {
       weekLabel: "Pekan absensi terbaru",
-      totalMeetings: 0,
-      studentMarked: 0,
-      summary: [
-        { label: "H", value: 0, description: "Hadir" },
-        { label: "S", value: 0, description: "Sakit" },
-        { label: "I", value: 0, description: "Izin" },
-        { label: "A", value: 0, description: "Alpha" },
-      ],
-      latestItems: [],
+      absentStudents: [],
     },
   },
   latestMaterials: [...materials]
@@ -437,70 +429,33 @@ export default function HomePage() {
                   </div>
 
                   <div className="space-y-5 bg-white px-5 py-5 dark:bg-card">
-                    <div className="grid gap-3 md:grid-cols-2">
-                      <RecapMetric
-                        label="Pertemuan"
-                        value={`${data.weeklyRecap.attendance.totalMeetings}`}
-                        icon="calendar"
-                      />
-                      <RecapMetric
-                        label="Siswa tercatat"
-                        value={`${data.weeklyRecap.attendance.studentMarked}`}
-                        icon="users"
-                      />
-                    </div>
-
                     <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
                       <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-foreground">Ringkasan status absensi</p>
-                        <span className="text-xs text-muted-foreground">Akumulasi satu pekan</span>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                        {data.weeklyRecap.attendance.summary.map((item) => (
-                          <div
-                            key={item.label}
-                            className="rounded-[22px] border border-[#e9dfca] bg-white px-4 py-3 shadow-sm dark:border-border dark:bg-card"
-                          >
-                            <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{item.label}</p>
-                            <p className="mt-2 text-2xl font-semibold text-primary">{item.value}</p>
-                            <p className="mt-1 text-xs text-muted-foreground">{item.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-foreground">Catatan absensi minggu ini</p>
+                        <p className="text-sm font-semibold text-foreground">Daftar siswa tidak hadir</p>
                         <span className="text-xs text-muted-foreground">
-                          {data.weeklyRecap.attendance.latestItems.length} pertemuan terbaru
+                          {data.weeklyRecap.attendance.absentStudents.length} siswa
                         </span>
                       </div>
 
-                      {data.weeklyRecap.attendance.latestItems.length > 0 ? (
+                      {data.weeklyRecap.attendance.absentStudents.length > 0 ? (
                         <div className="mt-4 space-y-3">
-                          {data.weeklyRecap.attendance.latestItems.map((item) => (
+                          {data.weeklyRecap.attendance.absentStudents.map((item) => (
                             <div
-                              key={`${item.attendanceDate}-${item.className}-${item.meeting}`}
+                              key={`${item.attendanceDate}-${item.studentName}-${item.className}`}
                               className="rounded-[22px] border border-[#e9dfca] bg-white px-4 py-3 shadow-sm dark:border-border dark:bg-card"
                             >
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-semibold">
-                                  {item.className} - {item.meeting}
-                                </p>
+                                <p className="text-sm font-semibold">{item.studentName}</p>
                                 <span className="text-xs text-muted-foreground">{item.attendanceDate}</span>
                               </div>
-                              <p className="mt-1 text-sm text-muted-foreground">{item.subject}</p>
-                              <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary">
-                                {item.total} siswa tercatat
-                              </p>
+                              <p className="mt-1 text-sm text-muted-foreground">{item.className}</p>
+                              <p className="mt-2 text-xs uppercase tracking-[0.16em] text-primary">{item.description}</p>
                             </div>
                           ))}
                         </div>
                       ) : (
                         <div className="mt-4 rounded-[22px] border border-dashed border-[#d8ccb2] bg-white/80 px-4 py-6 text-sm text-muted-foreground dark:border-border dark:bg-card/70">
-                          Belum ada absensi yang tersimpan pada pekan terbaru.
+                          Tidak ada siswa yang tercatat sakit, izin, atau alpha pada pekan terbaru.
                         </div>
                       )}
                     </div>
