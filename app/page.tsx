@@ -250,25 +250,6 @@ export default function HomePage() {
                       </p>
                     </div>
 
-                    <div className="overflow-hidden rounded-[22px] border border-[#e8dcc1] bg-white/82 px-4 py-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/6">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0f6b56] text-white">
-                          <AppIcon name="bell" className="h-3.5 w-3.5" />
-                        </div>
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                          <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#0f6b56] dark:text-[#f2d689]">
-                            Kata-kata hari ini
-                          </p>
-                          <div className="hero-marquee text-sm text-[#415049] dark:text-[#e4dece]">
-                            <div className="hero-marquee-track">
-                              <span>{data.heroTickerText}</span>
-                              <span aria-hidden="true">{data.heroTickerText}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                     <div className="hidden gap-2.5 md:grid md:grid-cols-3">
                       {[
                         { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
@@ -328,6 +309,25 @@ export default function HomePage() {
                         className="min-h-[152px]"
                       />
                     ) : null}
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[22px] border border-[#e8dcc1] bg-white/82 px-4 py-3 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/6">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0f6b56] text-white">
+                      <AppIcon name="bell" className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <p className="mb-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#0f6b56] dark:text-[#f2d689]">
+                        Kata-kata hari ini
+                      </p>
+                      <div className="hero-marquee text-sm text-[#415049] dark:text-[#e4dece]">
+                        <div className="hero-marquee-track">
+                          <span>{data.heroTickerText}</span>
+                          <span aria-hidden="true">{data.heroTickerText}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
