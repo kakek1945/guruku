@@ -338,7 +338,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-4 bg-white px-5 py-5 dark:bg-card xl:grid-cols-2">
+                  <div className="space-y-4 bg-white px-5 py-5 dark:bg-card">
                     <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-foreground">Catatan jurnal minggu ini</p>

@@ -129,7 +129,7 @@ async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
     })),
     latestTasks: weeklyJournals
       .filter((item) => item.studentTask && item.studentTask.trim().length > 0)
-      .slice(0, 3)
+      .slice(0, 5)
       .map((item) => ({
         date: formatDisplayDate(item.entryDate),
         className: item.className,
@@ -178,7 +178,7 @@ async function getWeeklyAttendanceRecap(authUserId: string | null | undefined) {
         className: item.className,
         description: formatAttendanceStatus(entry.status),
       })),
-  );
+  ).slice(0, 5);
 
   return {
     weekLabel: range.weekLabel,
