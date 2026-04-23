@@ -5,6 +5,38 @@ export type HomePageApiResponse = {
     date: string;
     teacherName: string;
   };
+  weeklyRecap: {
+    journal: {
+      weekLabel: string;
+      totalEntries: number;
+      classCount: number;
+      subjectCount: number;
+      latestItems: Array<{
+        date: string;
+        className: string;
+        subject: string;
+        topic: string;
+        hours: string;
+      }>;
+    };
+    attendance: {
+      weekLabel: string;
+      totalMeetings: number;
+      studentMarked: number;
+      summary: Array<{
+        label: string;
+        value: number;
+        description: string;
+      }>;
+      latestItems: Array<{
+        attendanceDate: string;
+        className: string;
+        subject: string;
+        meeting: string;
+        total: number;
+      }>;
+    };
+  };
   latestMaterials: Array<{
     title: string;
     type: string;

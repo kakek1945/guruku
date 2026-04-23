@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { desc } from "drizzle-orm";
+import { and, desc, eq, gte, lte } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { materialsLibrary, mediaLibrary, teacherProfiles, videoLibrary } from "@/lib/db/schema";
+import { attendanceRegisters, journals, materialsLibrary, mediaLibrary, teacherProfiles, videoLibrary } from "@/lib/db/schema";
 import { materials, mediaAssets, teacherProfile, videoAssets } from "@/lib/mock-data";
 import { formatDisplayDate, toThumbnailBackground } from "@/lib/server/dashboard-content";
 
@@ -34,6 +34,149 @@ function parseDateLabel(label: string) {
   return new Date(Number(year), monthMap[month] ?? 0, Number(day));
 }
 
+function parseDateInput(label: string) {
+  const [year, month, day] = label.split("-").map(Number);
+  return new Date(year, (month || 1) - 1, day || 1);
+}
+
+function toDateInputValue(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function getWeekRange(dateLabel: string) {
+  const current = parseDateInput(dateLabel);
+  const day = current.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const start = new Date(current);
+  start.setDate(current.getDate() + diffToMonday);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  return {
+    start,
+    end,
+    startLabel: toDateInputValue(start),
+    endLabel: toDateInputValue(end),
+    weekLabel: `${formatDisplayDate(start)} - ${formatDisplayDate(end)}`,
+  };
+}
+
+function buildAttendanceSummary(entries: Array<{ status: string }>) {
+  return [
+    { label: "H", description: "Hadir" },
+    { label: "S", description: "Sakit" },
+    { label: "I", description: "Izin" },
+    { label: "A", description: "Alpha" },
+  ].map((item) => ({
+    ...item,
+    value: entries.filter((entry) => entry.status === item.label).length,
+  }));
+}
+
+async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
+  if (!authUserId) {
+    return {
+      weekLabel: "Pekan jurnal terbaru",
+      totalEntries: 0,
+      classCount: 0,
+      subjectCount: 0,
+      latestItems: [],
+    };
+  }
+
+  const latestJournal = await db.query.journals.findFirst({
+    where: eq(journals.authUserId, authUserId),
+    orderBy: [desc(journals.entryDate), desc(journals.createdAt)],
+  });
+
+  if (!latestJournal) {
+    return {
+      weekLabel: "Pekan jurnal terbaru",
+      totalEntries: 0,
+      classCount: 0,
+      subjectCount: 0,
+      latestItems: [],
+    };
+  }
+
+  const range = getWeekRange(latestJournal.entryDate);
+  const weeklyJournals = await db.query.journals.findMany({
+    where: and(
+      eq(journals.authUserId, authUserId),
+      gte(journals.entryDate, range.startLabel),
+      lte(journals.entryDate, range.endLabel),
+    ),
+    orderBy: [desc(journals.entryDate), desc(journals.createdAt)],
+  });
+
+  return {
+    weekLabel: range.weekLabel,
+    totalEntries: weeklyJournals.length,
+    classCount: new Set(weeklyJournals.map((item) => item.className)).size,
+    subjectCount: new Set(weeklyJournals.map((item) => item.subject)).size,
+    latestItems: weeklyJournals.slice(0, 3).map((item) => ({
+      date: formatDisplayDate(item.entryDate),
+      className: item.className,
+      subject: item.subject,
+      topic: item.topic,
+      hours: item.hours,
+    })),
+  };
+}
+
+async function getWeeklyAttendanceRecap(authUserId: string | null | undefined) {
+  if (!authUserId) {
+    return {
+      weekLabel: "Pekan absensi terbaru",
+      totalMeetings: 0,
+      studentMarked: 0,
+      summary: buildAttendanceSummary([]),
+      latestItems: [],
+    };
+  }
+
+  const latestAttendance = await db.query.attendanceRegisters.findFirst({
+    orderBy: [desc(attendanceRegisters.attendanceDate), desc(attendanceRegisters.updatedAt)],
+    where: eq(attendanceRegisters.authUserId, authUserId),
+  });
+
+  if (!latestAttendance) {
+    return {
+      weekLabel: "Pekan absensi terbaru",
+      totalMeetings: 0,
+      studentMarked: 0,
+      summary: buildAttendanceSummary([]),
+      latestItems: [],
+    };
+  }
+
+  const range = getWeekRange(latestAttendance.attendanceDate);
+  const weeklyRegisters = await db.query.attendanceRegisters.findMany({
+    where: and(
+      eq(attendanceRegisters.authUserId, authUserId),
+      gte(attendanceRegisters.attendanceDate, range.startLabel),
+      lte(attendanceRegisters.attendanceDate, range.endLabel),
+    ),
+    orderBy: [desc(attendanceRegisters.attendanceDate), desc(attendanceRegisters.updatedAt)],
+  });
+
+  const allEntries = weeklyRegisters.flatMap((item) => item.entries);
+
+  return {
+    weekLabel: range.weekLabel,
+    totalMeetings: weeklyRegisters.length,
+    studentMarked: allEntries.length,
+    summary: buildAttendanceSummary(allEntries),
+    latestItems: weeklyRegisters.slice(0, 3).map((item) => ({
+      attendanceDate: formatDisplayDate(item.attendanceDate),
+      className: item.className,
+      subject: item.subject,
+      meeting: item.meeting,
+      total: item.entries.length,
+    })),
+  };
+}
+
 export async function GET() {
   const [dbMaterials, dbMedia, dbVideos, latestTeacherProfile] = await Promise.all([
     db.query.materialsLibrary.findMany({
@@ -51,6 +194,11 @@ export async function GET() {
     db.query.teacherProfiles.findFirst({
       orderBy: [desc(teacherProfiles.updatedAt)],
     }),
+  ]);
+
+  const [weeklyJournalRecap, weeklyAttendanceRecap] = await Promise.all([
+    getWeeklyJournalRecap(latestTeacherProfile?.authUserId),
+    getWeeklyAttendanceRecap(latestTeacherProfile?.authUserId),
   ]);
 
   const latestMaterials = [...materials]
@@ -77,6 +225,10 @@ export async function GET() {
             teacherName: latestTeacherProfile.name,
           }
         : defaultAnnouncement,
+    weeklyRecap: {
+      journal: weeklyJournalRecap,
+      attendance: weeklyAttendanceRecap,
+    },
     latestMaterials:
       dbMaterials.length > 0
         ? dbMaterials.map((item) => ({
