@@ -127,7 +127,10 @@ function AnnouncementHeroCard({
   title,
   detail,
   date,
+  teacherName,
 }: HomePageApiResponse["announcement"]) {
+  const detailWithSource = `${detail} (info dari ${teacherName})`;
+
   return (
     <Card className="group relative overflow-hidden border-[#d8caac] p-0 transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,107,86,0.24)] dark:hover:shadow-[0_26px_70px_rgba(0,0,0,0.34)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.46),_transparent_30%),linear-gradient(160deg,_#155848_0%,_#0f6b56_44%,_#0d4f42_100%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.16),_transparent_28%),linear-gradient(160deg,_#112925_0%,_#12342d_48%,_#102722_100%)]" />
@@ -152,9 +155,12 @@ function AnnouncementHeroCard({
           <div>
             <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
-          <div className="mt-5 rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+          <div className="relative mt-5 rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+            <div className="absolute -top-3 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/14 bg-white/12 text-sm font-bold text-white shadow-[0_10px_24px_rgba(0,0,0,0.16)] backdrop-blur animate-pulse">
+              !
+            </div>
             <p className="line-clamp-5 text-[15px] font-medium leading-7 text-white md:text-base">
-              {detail}
+              {detailWithSource}
             </p>
           </div>
         </div>
@@ -210,14 +216,14 @@ export default function HomePage() {
           </header>
 
           <div className="space-y-12 py-10 md:py-14">
-            <div className="grid gap-6 xl:min-h-[620px] xl:grid-cols-[0.94fr_1.06fr] xl:items-stretch">
-              <Card className="relative h-full overflow-hidden border-[#eadbc4] p-0 shadow-[0_24px_70px_rgba(63,52,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)] xl:min-h-[620px]">
+            <div className="grid gap-6 xl:grid-cols-[0.94fr_1.06fr] xl:items-stretch">
+              <Card className="relative h-full overflow-hidden border-[#eadbc4] p-0 shadow-[0_24px_70px_rgba(63,52,28,0.12)] dark:shadow-[0_24px_70px_rgba(0,0,0,0.28)]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,241,199,0.88),_transparent_35%),linear-gradient(145deg,_#fffdf8_0%,_#f8f0df_52%,_#f1e7d1_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(216,183,104,0.16),_transparent_28%),linear-gradient(145deg,_#14231f_0%,_#193229_55%,_#1d3a30_100%)]" />
                 <div className="absolute bottom-[-72px] left-[-28px] h-48 w-48 rounded-full bg-[#0f6b56]/10 blur-3xl dark:bg-[#3b8d78]/16" />
                 <div className="absolute right-[-40px] top-[-40px] h-36 w-36 rounded-full bg-[#f3d98e]/45 blur-3xl dark:bg-[#d5b45d]/14" />
 
                 <div className="relative h-full p-6 md:p-7">
-                  <div className="flex h-full flex-col justify-between gap-6">
+                  <div className="space-y-5">
                     <div className="space-y-4">
                       <h1 className="max-w-[11ch] font-serif text-[2.7rem] font-semibold leading-[0.95] tracking-[-0.045em] text-[#1b2b26] md:text-[3.8rem] dark:text-[#f6f2e8]">
                         <span className="block">Belajar tanpa</span>
@@ -254,10 +260,10 @@ export default function HomePage() {
                 </div>
               </Card>
 
-              <div className="grid h-full content-start gap-4 xl:min-h-[620px] xl:grid-rows-[auto_minmax(0,1fr)_auto]">
+              <div className="grid h-full content-start gap-4">
                 <AnnouncementHeroCard {...data.announcement} />
 
-                <div className="grid h-full gap-4 md:grid-cols-[1.08fr_0.92fr]">
+                <div className="grid gap-4 md:grid-cols-[1.08fr_0.92fr]">
                   {featuredVideo ? (
                     <HeroTile
                       label="Video unggulan"
