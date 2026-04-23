@@ -116,32 +116,36 @@ function AnnouncementHeroCard({
   teacherName,
 }: HomePageApiResponse["announcement"]) {
   return (
-    <Card className="relative overflow-hidden border-[#d8caac] p-0 shadow-[0_24px_70px_rgba(15,107,86,0.18)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.28)]">
+    <Card className="group relative overflow-hidden border-[#d8caac] p-0 transition duration-300 hover:-translate-y-1 hover:shadow-[0_30px_80px_rgba(15,107,86,0.24)] dark:hover:shadow-[0_26px_70px_rgba(0,0,0,0.34)]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.46),_transparent_30%),linear-gradient(160deg,_#155848_0%,_#0f6b56_44%,_#0d4f42_100%)] dark:bg-[radial-gradient(circle_at_top_right,_rgba(243,217,142,0.16),_transparent_28%),linear-gradient(160deg,_#112925_0%,_#12342d_48%,_#102722_100%)]" />
-      <div className="absolute right-[-28px] top-[-28px] h-28 w-28 rounded-full border border-white/14 bg-white/8 blur-sm" />
+      <div className="absolute inset-y-0 right-[-32%] w-[52%] -skew-x-12 bg-white/10 opacity-0 blur-2xl transition duration-500 group-hover:right-[-10%] group-hover:opacity-100" />
+      <div className="absolute right-[-28px] top-[-28px] h-24 w-24 rounded-full border border-white/14 bg-white/8 blur-sm transition duration-300 group-hover:scale-110" />
+      <div className="absolute bottom-[-24px] left-[-18px] h-20 w-20 rounded-full bg-[#f3d98e]/18 blur-2xl" />
 
-      <div className="relative p-6 text-white md:p-7">
+      <div className="relative p-5 text-white md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <Badge className="border-white/14 bg-white/10 text-white dark:border-white/12 dark:bg-white/10 dark:text-white">
             Pengumuman guru
           </Badge>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-xs text-white/88 backdrop-blur">
-            <AppIcon name="bell" className="h-3.5 w-3.5" />
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/12 animate-pulse">
+              <AppIcon name="bell" className="h-3.5 w-3.5" />
+            </span>
             <span>{date}</span>
           </div>
         </div>
 
-        <div className="mt-6 space-y-4">
+        <div className="mt-5 space-y-3">
           <div>
             <p className="text-sm uppercase tracking-[0.22em] text-white/68">Pesan terbaru</p>
-            <h2 className="mt-3 text-[1.9rem] font-semibold leading-tight md:text-[2.3rem]">{title}</h2>
+            <h2 className="mt-2.5 text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
-          <p className="text-sm leading-7 text-white/84 md:text-[15px]">{detail}</p>
+          <p className="line-clamp-4 text-sm leading-6 text-white/84 md:text-[14px]">{detail}</p>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-[24px] border border-white/12 bg-white/10 px-4 py-4 backdrop-blur">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 backdrop-blur">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/12">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 transition duration-300 group-hover:bg-white/16">
               <AppIcon name="info" className="h-4 w-4" />
             </div>
             <div>
@@ -251,32 +255,6 @@ export default function HomePage() {
                           <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
                         </div>
                       ))}
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {[
-                        "Lihat pengumuman guru lebih dulu",
-                        "Lanjutkan ke materi dan video terbaru",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="flex items-center gap-3 rounded-[22px] border border-[#eadfc8] bg-white/76 px-4 py-3 text-sm text-[#415049] shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-[#d5d0c4]"
-                        >
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0f6b56] text-white">
-                            <AppIcon name="info" className="h-3.5 w-3.5" />
-                          </div>
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      <Button href="#materi" size="lg">
-                        Mulai dari materi
-                      </Button>
-                      <Button href="#video" size="lg" variant="ghost">
-                        Buka video terbaru
-                      </Button>
                     </div>
                   </div>
                 </div>
