@@ -325,7 +325,7 @@ export function DashboardAbsensiForm() {
             </Button>
           </div>
 
-          <div className="mt-6 max-h-[58rem] space-y-4 overflow-y-auto pr-2">
+          <div className="mt-6 max-h-[31rem] space-y-4 overflow-y-auto pr-2">
             {entries.map((student) => (
               <div key={student.nis} className="rounded-[24px] border border-border bg-white p-4 dark:bg-card">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
