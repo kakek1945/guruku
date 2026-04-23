@@ -138,9 +138,9 @@ function AnnouncementHeroCard({
 
       <div className="relative p-5 text-white md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-white/72">
-            Pengumuman guru
-          </p>
+          <Badge className="border-white/14 bg-white/10 text-white dark:border-white/12 dark:bg-white/10 dark:text-white">
+            Informasi
+          </Badge>
           <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-xs text-white/88 backdrop-blur">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/12 animate-pulse">
               <AppIcon name="bell" className="h-3.5 w-3.5" />
@@ -151,8 +151,7 @@ function AnnouncementHeroCard({
 
         <div className="mt-5 space-y-3">
           <div>
-            <p className="text-sm uppercase tracking-[0.22em] text-white/68">Pesan terbaru</p>
-            <h2 className="mt-2.5 text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
+            <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
           <p className="line-clamp-4 text-sm leading-6 text-white/84 md:text-[14px]">{detail}</p>
         </div>
