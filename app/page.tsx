@@ -88,11 +88,13 @@ function ThumbnailCard({ label, title, meta, image }: ThumbnailCardProps) {
 }
 
 function HeroTile({
+  label = "Terbaru",
   title,
   meta,
   image,
   className,
 }: {
+  label?: string;
   title: string;
   meta: string;
   image: string;
@@ -102,7 +104,7 @@ function HeroTile({
     <div
       className={`group overflow-hidden rounded-[34px] border border-[#e7dcc2] bg-white shadow-[0_20px_60px_rgba(63,52,28,0.14)] dark:border-border dark:bg-card dark:shadow-[0_20px_60px_rgba(0,0,0,0.28)] ${className ?? ""}`}
     >
-      <ThumbnailArt image={image} label="Terbaru" title={title} meta={meta} heightClass="h-full min-h-[220px]" />
+      <ThumbnailArt image={image} label={label} title={title} meta={meta} heightClass="h-full min-h-[220px]" />
     </div>
   );
 }
@@ -154,120 +156,177 @@ export default function HomePage() {
           </header>
 
           <div className="space-y-12 py-10 md:py-14">
-            <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-              <Card className="overflow-hidden p-0">
-                <div className="h-full bg-[#fffdf8] p-7 dark:bg-[#182923] md:p-9">
-                  <div className="space-y-5">
-                    <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
-                      Konten terbaru
-                    </Badge>
-                    <h1 className="max-w-[11ch] font-serif text-[3rem] font-semibold leading-[0.93] tracking-[-0.045em] text-[#1b2b26] md:text-[4.2rem] dark:text-[#f6f2e8]">
-                      <span className="block">Belajar tanpa</span>
-                      <span className="block">Batas</span>
-                    </h1>
-                    <p className="max-w-xl text-base leading-7 text-muted-foreground md:text-lg">
-                      Materi, media, video, dan info penting dalam satu halaman.
-                    </p>
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      {[
-                        { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
-                        { label: "Media baru", value: `${data.latestMedia.length}+`, icon: "media" as const },
-                        { label: "Video baru", value: `${data.latestVideos.length}+`, icon: "video" as const },
-                      ].map((item) => (
-                        <div
-                          key={item.label}
-                          className="rounded-[24px] border border-[#ebdfc7] bg-white/92 px-4 py-4 shadow-sm dark:border-border dark:bg-[#20362f]"
-                        >
-                          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
-                            <AppIcon name={item.icon} className="h-4 w-4" />
-                          </div>
-                          <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                            {item.label}
-                          </p>
-                          <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
+            <div className="grid gap-6 xl:grid-cols-[1.18fr_0.82fr]">
+              <Card className="relative overflow-hidden border-[#eadbc4] p-0 shadow-[0_28px_70px_rgba(63,52,28,0.14)] dark:shadow-[0_28px_70px_rgba(0,0,0,0.28)]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,241,199,0.95),_transparent_38%),linear-gradient(140deg,_#fffdf7_0%,_#f6efe0_48%,_#efe6d4_100%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(205,171,105,0.18),_transparent_30%),linear-gradient(145deg,_#11211d_0%,_#173129_52%,_#204238_100%)]" />
+                <div className="absolute right-[-52px] top-[-52px] h-40 w-40 rounded-full bg-[#f3d98e]/55 blur-3xl dark:bg-[#d5b45d]/15" />
+                <div className="absolute bottom-[-86px] left-[-20px] h-52 w-52 rounded-full bg-[#0f6b56]/12 blur-3xl dark:bg-[#3b8d78]/18" />
+
+                <div className="relative h-full p-7 md:p-9">
+                  <div className="flex h-full flex-col justify-between gap-8">
+                    <div className="space-y-6">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
+                          Pengumuman utama
+                        </Badge>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-[#d8cfb8] bg-white/75 px-3 py-1.5 text-xs text-muted-foreground shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:text-[#f3ebd0]">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#0f6b56] text-white">
+                            <AppIcon name="bell" className="h-3.5 w-3.5" />
+                          </span>
+                          <span>{data.announcement.date}</span>
                         </div>
-                      ))}
+                      </div>
+
+                      <div className="space-y-4">
+                        <p className="text-sm font-medium uppercase tracking-[0.24em] text-[#0f6b56] dark:text-[#f2d689]">
+                          Dari {data.announcement.teacherName}
+                        </p>
+                        <h1 className="max-w-[12ch] font-serif text-[3rem] font-semibold leading-[0.92] tracking-[-0.05em] text-[#1b2b26] md:text-[4.3rem] dark:text-[#f6f2e8]">
+                          Siswa langsung melihat arahan guru sejak halaman dibuka.
+                        </h1>
+                        <p className="max-w-2xl text-base leading-7 text-[#43534d] md:text-lg dark:text-[#d6d0c3]">
+                          Pengumuman penting kami taruh di panggung utama supaya perhatian siswa langsung tertuju ke pesan terbaru sebelum menjelajahi materi, media, dan video.
+                        </p>
+                      </div>
+
+                      <div className="rounded-[30px] border border-[#d7c8a9] bg-[#0f6b56] p-5 text-white shadow-[0_22px_60px_rgba(15,107,86,0.24)] dark:border-white/10 dark:bg-[#102f2a] dark:shadow-[0_22px_60px_rgba(0,0,0,0.28)] md:p-6">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div className="space-y-3">
+                            <p className="text-xs uppercase tracking-[0.22em] text-white/72">Pesan guru</p>
+                            <div>
+                              <h2 className="text-2xl font-semibold leading-tight md:text-[2rem]">
+                                {data.announcement.title}
+                              </h2>
+                              <p className="mt-3 max-w-2xl text-sm leading-7 text-white/82 md:text-base">
+                                {data.announcement.detail}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 rounded-[22px] border border-white/12 bg-white/10 px-4 py-3 text-sm text-white/88 backdrop-blur">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/12 text-white">
+                              <AppIcon name="info" className="h-4 w-4" />
+                            </div>
+                            <div>
+                              <p className="font-medium">Prioritas siswa</p>
+                              <p className="text-xs text-white/72">Baca dulu, lalu lanjut belajar</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        {[
+                          { label: "Materi baru", value: `${data.latestMaterials.length}+`, icon: "materi" as const },
+                          { label: "Media baru", value: `${data.latestMedia.length}+`, icon: "media" as const },
+                          { label: "Video baru", value: `${data.latestVideos.length}+`, icon: "video" as const },
+                        ].map((item) => (
+                          <div
+                            key={item.label}
+                            className="rounded-[24px] border border-[#ebdfc7] bg-white/88 px-4 py-4 shadow-sm backdrop-blur dark:border-border dark:bg-[#20362f]/90"
+                          >
+                            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-secondary text-primary">
+                              <AppIcon name={item.icon} className="h-4 w-4" />
+                            </div>
+                            <p className="mt-3 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                              {item.label}
+                            </p>
+                            <p className="mt-2 text-3xl font-semibold text-primary">{item.value}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+
                     <div className="flex flex-wrap gap-3">
-                      <Button href="#info" size="lg" variant="ghost">
-                        Lihat informasi terbaru
+                      <Button href="#materi" size="lg">
+                        Mulai dari materi terbaru
+                      </Button>
+                      <Button href="#video" size="lg" variant="ghost">
+                        Lanjut ke video pembelajaran
                       </Button>
                     </div>
                   </div>
                 </div>
               </Card>
 
-              <div className="grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
-                {featuredVideo ? (
-                  <HeroTile
-                    title={featuredVideo.title}
-                    meta={`Video terbaru - ${featuredVideo.publishedAt}`}
-                    image={featuredVideo.thumbnail}
-                    className="min-h-[340px]"
-                  />
-                ) : null}
-                <div className="grid gap-4">
-                  {featuredMaterial ? (
-                    <HeroTile
-                      title={featuredMaterial.title}
-                      meta={`Materi - ${featuredMaterial.updatedAt}`}
-                      image={featuredMaterial.thumbnail}
-                      className="min-h-[160px]"
-                    />
-                  ) : null}
-                  {featuredMedia ? (
-                    <HeroTile
-                      title={featuredMedia.title}
-                      meta={`Media - ${featuredMedia.uploadedAt}`}
-                      image={featuredMedia.thumbnail}
-                      className="min-h-[160px]"
-                    />
-                  ) : null}
+              <div className="grid gap-4">
+                <Card className="overflow-hidden border-[#eadbc4] bg-[#fffaf0] p-0 dark:bg-[#162823]">
+                  <div className="border-b border-[#e6d7b7] px-5 py-4 dark:border-white/10">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                          Pendukung pengumuman
+                        </p>
+                        <h2 className="mt-2 text-2xl font-semibold text-[#1b2b26] dark:text-[#f6f2e8]">
+                          Lanjutkan ke konten terbaru
+                        </h2>
+                      </div>
+                      <Badge className="border border-[#ead8a7] bg-[#fff1c7] text-accent-foreground">
+                        Update kelas
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 p-4">
+                    {featuredVideo ? (
+                      <HeroTile
+                        label="Video unggulan"
+                        title={featuredVideo.title}
+                        meta={`Video terbaru - ${featuredVideo.publishedAt}`}
+                        image={featuredVideo.thumbnail}
+                        className="min-h-[280px]"
+                      />
+                    ) : null}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {featuredMaterial ? (
+                        <HeroTile
+                          label="Materi inti"
+                          title={featuredMaterial.title}
+                          meta={`Materi - ${featuredMaterial.updatedAt}`}
+                          image={featuredMaterial.thumbnail}
+                          className="min-h-[160px]"
+                        />
+                      ) : null}
+                      {featuredMedia ? (
+                        <HeroTile
+                          label="Media kelas"
+                          title={featuredMedia.title}
+                          meta={`Media - ${featuredMedia.uploadedAt}`}
+                          image={featuredMedia.thumbnail}
+                          className="min-h-[160px]"
+                        />
+                      ) : null}
+                    </div>
+                  </div>
+                </Card>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {[
+                    {
+                      title: "Buka pengumuman",
+                      detail: "Fokus pertama siswa saat masuk ke halaman.",
+                    },
+                    {
+                      title: "Pilih materi",
+                      detail: "Setelah membaca info guru, siswa bisa lanjut belajar.",
+                    },
+                    {
+                      title: "Tonton video",
+                      detail: "Konten pendukung tetap terlihat tanpa menggeser fokus utama.",
+                    },
+                  ].map((item, index) => (
+                    <Card
+                      key={item.title}
+                      className="border-[#eadbc4] bg-white/88 p-5 shadow-[0_16px_40px_rgba(63,52,28,0.09)] dark:bg-card/90"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-secondary text-sm font-semibold text-primary">
+                        0{index + 1}
+                      </div>
+                      <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.detail}</p>
+                    </Card>
+                  ))}
                 </div>
               </div>
             </div>
-
-            <section id="info" className="space-y-4">
-              <SectionTitle title="Pengumuman guru" badge="Info" />
-              <Card className="overflow-hidden p-0">
-                <div className="border-b border-[#e7dcc2] bg-[#114f43] px-5 py-4 text-white dark:border-border dark:bg-[#0f2f2a] md:px-6">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/12 text-white">
-                        <AppIcon name="bell" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">Pengumuman guru</h3>
-                        <p className="mt-1 text-sm text-white/80">
-                          Informasi penting dari guru untuk seluruh siswa.
-                        </p>
-                      </div>
-                    </div>
-                    <Badge className="border-white/16 bg-white/10 text-white dark:border-white/12 dark:bg-white/10 dark:text-white">
-                      Pengumuman
-                    </Badge>
-                  </div>
-                </div>
-
-                <div className="bg-[#fffdf8] px-5 py-5 dark:bg-[#182923] md:px-6 md:py-6">
-                  <div className="rounded-[24px] border border-[#ebe2cf] bg-white p-5 shadow-[0_16px_36px_rgba(63,52,28,0.08)] dark:border-border dark:bg-[#10231f] dark:shadow-[0_16px_36px_rgba(0,0,0,0.24)]">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-primary">
-                        <AppIcon name="info" className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-base font-semibold text-foreground">{data.announcement.title}</p>
-                          <span className="text-xs text-muted-foreground">oleh {data.announcement.teacherName}</span>
-                        </div>
-                        <p className="mt-3 text-sm leading-7 text-muted-foreground">{data.announcement.detail}</p>
-                      </div>
-                      <p className="whitespace-nowrap text-xs text-muted-foreground">{data.announcement.date}</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            </section>
 
             <section id="materi" className="space-y-4">
               <SectionTitle title="Materi terbaru" badge="Urut terbaru" />
