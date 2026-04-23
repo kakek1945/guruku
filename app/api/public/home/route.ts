@@ -85,6 +85,7 @@ async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
       classCount: 0,
       subjectCount: 0,
       latestItems: [],
+      latestTasks: [],
     };
   }
 
@@ -100,6 +101,7 @@ async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
       classCount: 0,
       subjectCount: 0,
       latestItems: [],
+      latestTasks: [],
     };
   }
 
@@ -125,6 +127,15 @@ async function getWeeklyJournalRecap(authUserId: string | null | undefined) {
       topic: item.topic,
       hours: item.hours,
     })),
+    latestTasks: weeklyJournals
+      .filter((item) => item.studentTask && item.studentTask.trim().length > 0)
+      .slice(0, 3)
+      .map((item) => ({
+        date: formatDisplayDate(item.entryDate),
+        className: item.className,
+        subject: item.subject,
+        studentTask: item.studentTask || "-",
+      })),
   };
 }
 

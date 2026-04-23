@@ -19,6 +19,12 @@ export type HomePageApiResponse = {
         topic: string;
         hours: string;
       }>;
+      latestTasks: Array<{
+        date: string;
+        className: string;
+        subject: string;
+        studentTask: string;
+      }>;
     };
     attendance: {
       weekLabel: string;
@@ -121,6 +127,7 @@ export type JournalHistoryItem = {
   topic: string;
   goal: string;
   activity: string;
+  studentTask: string;
   note: string;
   status: string;
   entryDate: string;

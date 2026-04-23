@@ -49,6 +49,7 @@ const defaultHomeData: HomePageApiResponse = {
       classCount: 0,
       subjectCount: 0,
       latestItems: [],
+      latestTasks: [],
     },
     attendance: {
       weekLabel: "Pekan absensi terbaru",
@@ -315,7 +316,7 @@ export default function HomePage() {
             </div>
 
             <section id="rekap" className="space-y-4">
-              <SectionTitle title="Rekap Pekan Terbaru" badge="Jurnal & Absensi" />
+              <SectionTitle title="Rekap Pekan Terbaru" badge="Jurnal, Tugas & Absensi" />
               <div className="grid gap-5 xl:grid-cols-2">
                 <Card className="overflow-hidden border-[#e6dcc5] p-0">
                   <div className="border-b border-[#eadfc7] bg-[#fffaf0] px-5 py-4 dark:border-border dark:bg-[#162823]">
@@ -337,7 +338,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="space-y-5 bg-white px-5 py-5 dark:bg-card">
+                  <div className="grid gap-4 bg-white px-5 py-5 dark:bg-card xl:grid-cols-2">
                     <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-semibold text-foreground">Catatan jurnal minggu ini</p>
@@ -367,6 +368,37 @@ export default function HomePage() {
                       ) : (
                         <div className="mt-4 rounded-[22px] border border-dashed border-[#d8ccb2] bg-white/80 px-4 py-6 text-sm text-muted-foreground dark:border-border dark:bg-card/70">
                           Belum ada jurnal yang tersimpan pada pekan terbaru.
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="rounded-[26px] border border-[#eadfc7] bg-[#fffaf0] p-4 dark:border-border dark:bg-[#162823]">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-sm font-semibold text-foreground">Tugas siswa minggu ini</p>
+                        <span className="text-xs text-muted-foreground">
+                          {data.weeklyRecap.journal.latestTasks.length} tugas
+                        </span>
+                      </div>
+
+                      {data.weeklyRecap.journal.latestTasks.length > 0 ? (
+                        <div className="mt-4 space-y-3">
+                          {data.weeklyRecap.journal.latestTasks.map((item) => (
+                            <div
+                              key={`${item.date}-${item.className}-${item.studentTask}`}
+                              className="rounded-[22px] border border-[#e9dfca] bg-white px-4 py-3 shadow-sm dark:border-border dark:bg-card"
+                            >
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm font-semibold">{item.className}</p>
+                                <span className="text-xs text-muted-foreground">{item.date}</span>
+                              </div>
+                              <p className="mt-1 text-sm text-muted-foreground">{item.subject}</p>
+                              <p className="mt-2 text-sm leading-6 text-foreground">{item.studentTask}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="mt-4 rounded-[22px] border border-dashed border-[#d8ccb2] bg-white/80 px-4 py-6 text-sm text-muted-foreground dark:border-border dark:bg-card/70">
+                          Belum ada tugas siswa yang dicatat pada pekan terbaru.
                         </div>
                       )}
                     </div>

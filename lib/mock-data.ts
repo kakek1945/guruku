@@ -84,6 +84,7 @@ export const journalHistory: Array<{
   topic: string;
   goal: string;
   activity: string;
+  studentTask: string;
   note: string;
 }> = [];
 

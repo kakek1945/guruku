@@ -69,6 +69,7 @@ export const journals = pgTable("journals", {
   topic: text("topic").notNull(),
   goal: text("goal").notNull(),
   activity: text("activity").notNull(),
+  studentTask: text("student_task"),
   note: text("note"),
   status: text("status").notNull().default("published"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

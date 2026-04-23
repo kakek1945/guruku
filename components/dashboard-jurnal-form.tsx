@@ -25,6 +25,7 @@ const defaultHistory: JournalHistoryItem[] = journalHistory.map((entry, index) =
   topic: entry.topic,
   goal: entry.goal,
   activity: entry.activity,
+  studentTask: entry.studentTask || "-",
   note: entry.note,
   status: "published",
   entryDate: "2026-04-19",
@@ -39,6 +40,7 @@ function createInitialForm(subject = teacherProfile.role, className = "VII-A") {
     topic: "",
     goal: "",
     activity: "",
+    studentTask: "",
     note: "",
   };
 }
@@ -311,9 +313,10 @@ export function DashboardJurnalForm() {
           const topicLines = wrapPdfText(entry.topic, contentWidth - 28, boldFont, 12.5);
           const goalLines = wrapPdfText(`Tujuan: ${entry.goal}`, contentWidth - 28, regularFont, 10.5);
           const activityLines = wrapPdfText(`Aktivitas: ${entry.activity}`, contentWidth - 28, regularFont, 10.5);
+          const taskLines = wrapPdfText(`Tugas siswa: ${entry.studentTask}`, contentWidth - 28, regularFont, 10.5);
           const noteLines = wrapPdfText(`Catatan: ${entry.note}`, contentWidth - 28, regularFont, 10.5);
           const headerHeight = 18 + topicLines.length * 15;
-          const bodyLines = goalLines.length + activityLines.length + noteLines.length;
+          const bodyLines = goalLines.length + activityLines.length + taskLines.length + noteLines.length;
           const blockHeight = headerHeight + bodyLines * lineHeight + sectionGap * 3 + 26;
 
           ensureSpace(blockHeight);
@@ -350,7 +353,7 @@ export function DashboardJurnalForm() {
 
           textY -= 3;
 
-          [...goalLines, "", ...activityLines, "", ...noteLines].forEach((line) => {
+          [...goalLines, "", ...activityLines, "", ...taskLines, "", ...noteLines].forEach((line) => {
             if (!line) {
               textY -= sectionGap;
               return;
@@ -420,6 +423,7 @@ export function DashboardJurnalForm() {
                 <td>${entry.topic}</td>
                 <td>${entry.goal}</td>
                 <td>${entry.activity}</td>
+                <td>${entry.studentTask}</td>
                 <td>${entry.note}</td>
               </tr>
             `,
@@ -459,6 +463,7 @@ export function DashboardJurnalForm() {
                     <th>Materi</th>
                     <th>Tujuan</th>
                     <th>Aktivitas</th>
+                    <th>Tugas siswa</th>
                     <th>Catatan</th>
                   </tr>
                 </thead>
@@ -517,6 +522,7 @@ export function DashboardJurnalForm() {
       topic: entry.topic,
       goal: entry.goal,
       activity: entry.activity,
+      studentTask: entry.studentTask === "-" ? "" : entry.studentTask,
       note: entry.note === "-" ? "" : entry.note,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -652,6 +658,15 @@ export function DashboardJurnalForm() {
               <Textarea id="aktivitas" value={form.activity} onChange={(event) => handleChange("activity", event.target.value)} />
             </div>
             <div>
+              <Label htmlFor="tugas-siswa">Tugas siswa</Label>
+              <Textarea
+                id="tugas-siswa"
+                placeholder="Contoh: Kerjakan latihan halaman 24 nomor 1-5 dan kumpulkan besok."
+                value={form.studentTask}
+                onChange={(event) => handleChange("studentTask", event.target.value)}
+              />
+            </div>
+            <div>
               <Label htmlFor="catatan">Catatan kendala / evaluasi</Label>
               <Textarea id="catatan" value={form.note} onChange={(event) => handleChange("note", event.target.value)} />
             </div>
@@ -769,6 +784,9 @@ export function DashboardJurnalForm() {
                   </p>
                   <p>
                     <span className="font-medium text-foreground">Aktivitas:</span> {entry.activity}
+                  </p>
+                  <p>
+                    <span className="font-medium text-foreground">Tugas siswa:</span> {entry.studentTask}
                   </p>
                   <p>
                     <span className="font-medium text-foreground">Catatan:</span> {entry.note}

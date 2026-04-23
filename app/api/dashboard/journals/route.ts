@@ -17,6 +17,7 @@ function mapJournalHistoryItem(entry: typeof journals.$inferSelect) {
     topic: entry.topic,
     goal: entry.goal,
     activity: entry.activity,
+    studentTask: entry.studentTask || "-",
     note: entry.note || "-",
     status: entry.status,
     entryDate: entry.entryDate,
@@ -93,6 +94,7 @@ export async function POST(request: Request) {
     topic: string;
     goal: string;
     activity: string;
+    studentTask?: string;
     note?: string;
     status?: string;
   };
@@ -110,6 +112,7 @@ export async function POST(request: Request) {
     topic: body.topic,
     goal: body.goal || "-",
     activity: body.activity || "-",
+    studentTask: body.studentTask || null,
     note: body.note || null,
     status: body.status === "draft" ? "draft" : "published",
     updatedAt: new Date(),
@@ -137,6 +140,7 @@ export async function PUT(request: Request) {
     topic: string;
     goal: string;
     activity: string;
+    studentTask?: string;
     note?: string;
     status?: string;
   };
@@ -155,6 +159,7 @@ export async function PUT(request: Request) {
       topic: body.topic,
       goal: body.goal || "-",
       activity: body.activity || "-",
+      studentTask: body.studentTask || null,
       note: body.note || null,
       status: body.status === "draft" ? "draft" : "published",
       updatedAt: new Date(),
