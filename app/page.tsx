@@ -155,8 +155,8 @@ function AnnouncementHeroCard({
           <div>
             <h2 className="text-[1.55rem] font-semibold leading-tight md:text-[1.9rem]">{title}</h2>
           </div>
-          <div className="relative rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
-            <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-white/16 bg-[#fff4cf] text-sm font-bold text-[#184337] shadow-sm">
+          <div className="relative mt-5 rounded-[22px] border border-white/14 bg-white/10 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur">
+            <div className="absolute -top-3 right-4 flex h-8 w-8 items-center justify-center rounded-full border border-white/16 bg-[#fff4cf] text-sm font-bold text-[#184337] shadow-[0_10px_24px_rgba(0,0,0,0.16)]">
               !
             </div>
             <p className="line-clamp-5 text-[15px] font-medium leading-7 text-white md:text-base">
