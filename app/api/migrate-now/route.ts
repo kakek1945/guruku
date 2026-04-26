@@ -72,7 +72,7 @@ export async function GET() {
       if (createdUser) {
         // Enforce the custom fields just in case
         await db.update(user).set({
-          role: seedData.role,
+          role: seedData.role as "ADMIN" | "KEPALA_SEKOLAH" | "GURU" | "SISWA",
           isVerified: seedData.isVerified,
         }).where(eq(user.id, createdUser.id));
 
