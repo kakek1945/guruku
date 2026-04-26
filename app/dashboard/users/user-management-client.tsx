@@ -87,16 +87,16 @@ export function UserManagementClient({ initialUsers }: { initialUsers: UserType[
                   </td>
                   <td className="px-4 py-3 text-right flex justify-end gap-2">
                     <Button
-                      size="sm"
-                      variant={user.isVerified ? "outline" : "default"}
+                      variant={user.isVerified ? "secondary" : "default"}
+                      className={user.isVerified ? "h-8 px-3 text-xs bg-transparent" : "h-8 px-3 text-xs"}
                       onClick={() => handleToggleVerify(user.id, user.isVerified)}
                       disabled={isPending}
                     >
                       {user.isVerified ? "Cabut Akses" : "Setujui"}
                     </Button>
                     <Button
-                      size="sm"
-                      variant="destructive"
+                      variant="default"
+                      className="h-8 px-3 text-xs bg-red-500 hover:bg-red-600 shadow-none text-white"
                       onClick={() => handleDelete(user.id)}
                       disabled={isPending}
                     >
