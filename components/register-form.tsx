@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
 import { normalizeAuthLogin } from "@/lib/auth-login";
@@ -102,9 +103,9 @@ export function RegisterForm() {
       <div className="text-center mt-2">
         <p className="text-sm text-muted-foreground">
           Sudah punya akun?{" "}
-          <a href="/login" className="text-primary hover:underline">
+          <Link href="/login" className="text-primary hover:underline">
             Masuk di sini
-          </a>
+          </Link>
         </p>
       </div>
     </form>
