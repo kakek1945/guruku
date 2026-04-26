@@ -29,4 +29,18 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "SISWA",
+      },
+      isVerified: {
+        type: "boolean",
+        required: true,
+        defaultValue: false,
+      },
+    },
+  },
 });

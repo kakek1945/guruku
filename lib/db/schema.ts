@@ -28,6 +28,7 @@ export const students = pgTable(
   "students",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    authUserId: text("auth_user_id"),
     nis: text("nis").notNull(),
     name: text("name").notNull(),
     className: text("class_name").notNull(),
@@ -35,7 +36,10 @@ export const students = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
-  (table) => [uniqueIndex("students_nis_idx").on(table.nis)],
+  (table) => [
+    uniqueIndex("students_nis_idx").on(table.nis),
+    uniqueIndex("students_auth_user_id_idx").on(table.authUserId)
+  ],
 );
 
 export const classesCatalog = pgTable(

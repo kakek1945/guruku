@@ -12,22 +12,55 @@ import { getDashboardSettings } from "@/lib/api/dashboard";
 import type { DashboardSettingsProfile } from "@/lib/api-types";
 import { teacherProfile } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
-const navigation = [
-  { label: "Dashboard", href: "/dashboard", icon: "dashboard" as IconName },
-  { label: "Kelas", href: "/dashboard/kelas", icon: "kelas" as IconName },
-  { label: "Jurnal", href: "/dashboard/jurnal", icon: "jurnal" as IconName },
-  { label: "Absensi", href: "/dashboard/absensi", icon: "absensi" as IconName },
-  { label: "Nilai", href: "/dashboard/nilai", icon: "nilai" as IconName },
-  { label: "Materi, Media & Video", href: "/dashboard/materi", icon: "materi" as IconName },
-  { label: "Pengaturan", href: "/dashboard/pengaturan", icon: "settings" as IconName },
-];
+const getNavigationByRole = (role: string) => {
+  switch (role) {
+    case "ADMIN":
+      return [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as IconName },
+        { label: "Manajemen Akun", href: "/dashboard/users", icon: "users" as IconName },
+        { label: "Pengaturan", href: "/dashboard/pengaturan", icon: "settings" as IconName },
+      ];
+    case "KEPALA_SEKOLAH":
+      return [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as IconName },
+        { label: "Laporan Jurnal", href: "/dashboard/jurnal", icon: "jurnal" as IconName },
+        { label: "Laporan Absensi", href: "/dashboard/absensi", icon: "absensi" as IconName },
+        { label: "Pengaturan", href: "/dashboard/pengaturan", icon: "settings" as IconName },
+      ];
+    case "SISWA":
+      return [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as IconName },
+        { label: "Nilai Saya", href: "/dashboard/nilai", icon: "nilai" as IconName },
+        { label: "Absensi Saya", href: "/dashboard/absensi", icon: "absensi" as IconName },
+        { label: "Materi Belajar", href: "/dashboard/materi", icon: "materi" as IconName },
+        { label: "Pengaturan", href: "/dashboard/pengaturan", icon: "settings" as IconName },
+      ];
+    case "GURU":
+    default:
+      return [
+        { label: "Dashboard", href: "/dashboard", icon: "dashboard" as IconName },
+        { label: "Kelas", href: "/dashboard/kelas", icon: "kelas" as IconName },
+        { label: "Jurnal", href: "/dashboard/jurnal", icon: "jurnal" as IconName },
+        { label: "Absensi", href: "/dashboard/absensi", icon: "absensi" as IconName },
+        { label: "Nilai", href: "/dashboard/nilai", icon: "nilai" as IconName },
+        { label: "Materi, Media & Video", href: "/dashboard/materi", icon: "materi" as IconName },
+        { label: "Pengaturan", href: "/dashboard/pengaturan", icon: "settings" as IconName },
+      ];
+  }
+};
 
 type DashboardShellProps = {
   children: React.ReactNode;
 };
 
 export function DashboardShell({ children }: DashboardShellProps) {
+  const { data: session, isPending } = authClient.useSession();
+  // @ts-ignore
+  const userRole = session?.user?.role || "GURU";
+
+  const navigation = getNavigationByRole(userRole);
   const pathname = usePathname();
   const [profile, setProfile] = useState<DashboardSettingsProfile>({
     name: teacherProfile.name,
