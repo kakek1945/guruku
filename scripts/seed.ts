@@ -23,11 +23,10 @@ import {
 config({ path: ".env.local" });
 config();
 
-const adminSeed = {
-  name: "Admin GuruKu",
-  email: "admin@guruku.local",
-  password: "P4ssw0rd",
-};
+const adminSeed = { name: "Admin Sistem", email: "admin@guruku.local", password: "password123", role: "ADMIN", isVerified: true };
+const kepsekSeed = { name: "Kepala Sekolah", email: "kepsek@guruku.local", password: "password123", role: "KEPALA_SEKOLAH", isVerified: true };
+const guruSeed = { name: "Guru Pengajar", email: "guru@guruku.local", password: "password123", role: "GURU", isVerified: true };
+const siswaSeed = { name: "Siswa Teladan", email: "siswa@guruku.local", password: "password123", role: "SISWA", isVerified: true };
 
 async function resetStoredData() {
   await db.delete(attendanceRegisters);
@@ -45,57 +44,72 @@ async function resetStoredData() {
   await db.delete(user);
 }
 
-async function ensureAdminUser() {
-  await auth.api.signUpEmail({
-    body: adminSeed,
+async function createUser(seedData: any) {
+  // @ts-ignore
+  const response = await auth.api.signUpEmail({
+    body: {
+      name: seedData.name,
+      email: seedData.email,
+      password: seedData.password,
+      role: seedData.role,
+      isVerified: seedData.isVerified,
+    },
   });
 
   const createdUser = await db.query.user.findFirst({
-    where: eq(user.email, adminSeed.email),
+    where: eq(user.email, seedData.email),
   });
 
   if (!createdUser) {
-    throw new Error("Failed to create or find seeded admin user.");
+    throw new Error(`Failed to create ${seedData.role} user.`);
   }
 
-  await db
-    .insert(teacherProfiles)
-    .values({
-      authUserId: createdUser.id,
-      name: "Admin GuruKu",
-      role: "Mapel belum diatur",
-      school: "SMP Negeri Kep. Meranti",
-      nip: null,
-      email: "admin@guruku",
-      phone: null,
-      address: null,
-      announcementTitle: "Pengumuman guru",
-      announcementBody: "Belum ada pengumuman.",
-    })
-    .onConflictDoUpdate({
-      target: teacherProfiles.authUserId,
-      set: {
-        name: "Admin GuruKu",
-        role: "Mapel belum diatur",
-        school: "SMP Negeri Kep. Meranti",
-        nip: null,
-        email: "admin@guruku",
-        phone: null,
-        address: null,
-        announcementTitle: "Pengumuman guru",
-        announcementBody: "Belum ada pengumuman.",
-        updatedAt: new Date(),
-      },
-    });
+  // Fallback update just in case better-auth didn't save the custom fields
+  await db.update(user).set({
+    role: seedData.role,
+    isVerified: seedData.isVerified,
+  }).where(eq(user.id, createdUser.id));
+
+  return createdUser;
+}
+
+async function ensureSeedUsers() {
+  const adminUser = await createUser(adminSeed);
+  const kepsekUser = await createUser(kepsekSeed);
+  const guruUser = await createUser(guruSeed);
+  const siswaUser = await createUser(siswaSeed);
+
+  // Setup teacher profile for Guru
+  await db.insert(teacherProfiles).values({
+    authUserId: guruUser.id,
+    name: guruUser.name,
+    role: "Guru Matematika",
+    school: "SMP Negeri 1 Merbau",
+    email: guruUser.email,
+    announcementTitle: "Pengumuman Guru",
+    announcementBody: "Belum ada pengumuman.",
+  });
+
+  // Setup student profile for Siswa
+  await db.insert(students).values({
+    authUserId: siswaUser.id,
+    nis: "12345678",
+    name: siswaUser.name,
+    className: "8A",
+    gender: "L",
+  });
 }
 
 async function main() {
   await resetStoredData();
-  await ensureAdminUser();
+  await ensureSeedUsers();
 
-  console.log("Database reset completed successfully.");
-  console.log("Admin username: admin@guruku");
-  console.log(`Admin password: ${adminSeed.password}`);
+  console.log("Database reset and seeded successfully.");
+  console.log("Use the following accounts to test (Password for all: password123):");
+  console.log("- admin@guruku.local");
+  console.log("- kepsek@guruku.local");
+  console.log("- guru@guruku.local");
+  console.log("- siswa@guruku.local");
 }
 
 main()

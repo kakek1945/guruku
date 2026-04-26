@@ -19,7 +19,7 @@ const defaultDashboardData: DashboardOverviewApiResponse = {
   classAssignments,
 };
 
-export default function DashboardPage() {
+function TeacherDashboard() {
   const [data, setData] = useState<DashboardOverviewApiResponse>(defaultDashboardData);
   const [profile, setProfile] = useState<DashboardSettingsProfile>({
     name: teacherProfile.name,
@@ -76,7 +76,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        badge="Dashboard"
+        badge="Dashboard Guru"
         title={`Halo, ${profile.name}`}
         description="Pilih aksi lalu lanjut input."
         icon="dashboard"
@@ -189,4 +189,83 @@ export default function DashboardPage() {
       </section>
     </div>
   );
+}
+
+function AdminDashboard() {
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        badge="Dashboard Admin"
+        title="Panel Administrator"
+        description="Kelola pengguna, verifikasi akun, dan pengaturan sistem."
+        icon="dashboard"
+      />
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+        <h3 className="font-semibold text-lg">Verifikasi Akun</h3>
+        <p className="text-sm text-muted-foreground mt-2">Belum ada akun yang perlu diverifikasi.</p>
+        <div className="mt-4">
+          <Button href="/dashboard/users">Kelola Semua Pengguna</Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrincipalDashboard() {
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        badge="Dashboard Kepala Sekolah"
+        title="Ringkasan Sekolah"
+        description="Pantau laporan, jurnal guru, dan statistik kehadiran."
+        icon="dashboard"
+      />
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+        <h3 className="font-semibold text-lg">Laporan Terbaru</h3>
+        <p className="text-sm text-muted-foreground mt-2">Menunggu integrasi modul pelaporan.</p>
+      </div>
+    </div>
+  );
+}
+
+function StudentDashboard() {
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        badge="Portal Siswa"
+        title="Halo, Siswa"
+        description="Lihat nilai, absensi, dan materi belajar Anda di sini."
+        icon="dashboard"
+      />
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
+        <h3 className="font-semibold text-lg">Materi Terbaru</h3>
+        <p className="text-sm text-muted-foreground mt-2">Belum ada materi baru yang ditugaskan ke kelas Anda.</p>
+      </div>
+    </div>
+  );
+}
+
+import { authClient } from "@/lib/auth-client";
+
+export default function DashboardPage() {
+  const { data: session, isPending } = authClient.useSession();
+  
+  if (isPending) {
+    return <div className="flex min-h-[400px] items-center justify-center">Memuat dashboard...</div>;
+  }
+
+  // @ts-ignore
+  const userRole = session?.user?.role || "GURU";
+
+  switch (userRole) {
+    case "ADMIN":
+      return <AdminDashboard />;
+    case "KEPALA_SEKOLAH":
+      return <PrincipalDashboard />;
+    case "SISWA":
+      return <StudentDashboard />;
+    case "GURU":
+    default:
+      return <TeacherDashboard />;
+  }
 }
