@@ -76,7 +76,7 @@ export function UserManagementClient({ initialUsers }: { initialUsers: UserType[
                   <td className="px-4 py-3 font-medium">{user.name}</td>
                   <td className="px-4 py-3">{user.email}</td>
                   <td className="px-4 py-3">
-                    <Badge variant="outline">{user.role}</Badge>
+                    <Badge className="bg-transparent border-muted-foreground/30 text-foreground">{user.role}</Badge>
                   </td>
                   <td className="px-4 py-3">
                     {user.isVerified ? (
