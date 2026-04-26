@@ -10,8 +10,17 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getDashboardSettings, saveDashboardAccount, saveDashboardSettings } from "@/lib/api/dashboard";
-import type { DashboardSettingsApiResponse, DashboardSettingsProfile } from "@/lib/api-types";
+import {
+  getDashboardSettings,
+  restoreDashboardSystemBackup,
+  saveDashboardAccount,
+  saveDashboardSettings,
+} from "@/lib/api/dashboard";
+import type {
+  DashboardSettingsApiResponse,
+  DashboardSettingsProfile,
+  DashboardSystemRestoreResponse,
+} from "@/lib/api-types";
 import { teacherProfile as defaultTeacherProfile } from "@/lib/mock-data";
 
 const defaultProfile: DashboardSettingsProfile = {
@@ -42,13 +51,20 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor: string; c
 export function DashboardSettingsForm() {
   const router = useRouter();
   const profileInputRef = useRef<HTMLInputElement | null>(null);
+  const backupFileInputRef = useRef<HTMLInputElement | null>(null);
   const [profile, setProfile] = useState<DashboardSettingsProfile>(defaultProfile);
   const [subjectInput, setSubjectInput] = useState(defaultTeacherProfile.role);
   const [selectedProfileFile, setSelectedProfileFile] = useState<File | null>(null);
+  const [selectedBackupFile, setSelectedBackupFile] = useState<File | null>(null);
+  const [restoreConfirmation, setRestoreConfirmation] = useState("");
+  const [canManageSystemBackup, setCanManageSystemBackup] = useState(false);
+  const [restoreSummary, setRestoreSummary] = useState<DashboardSystemRestoreResponse | null>(null);
   const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [isSaving, startSaving] = useTransition();
   const [isSavingAccount, startSavingAccount] = useTransition();
+  const [isDownloadingBackup, startDownloadingBackup] = useTransition();
+  const [isRestoringBackup, startRestoringBackup] = useTransition();
   const [accountForm, setAccountForm] = useState({
     username: defaultTeacherProfile.email,
     currentPassword: "",
@@ -66,6 +82,7 @@ export function DashboardSettingsForm() {
 
         setProfile(response.profile);
         setSubjectInput(response.profile.subjects.join("\n"));
+        setCanManageSystemBackup(response.canManageSystemBackup);
         setAccountForm((current) => ({
           ...current,
           username: response.accountUsername,
@@ -152,6 +169,109 @@ export function DashboardSettingsForm() {
         setFeedback({
           tone: "error",
           message: error instanceof Error ? error.message : "Perubahan belum dapat disimpan.",
+        });
+      } finally {
+        setLoadingMessage("");
+      }
+    });
+  };
+
+  const handleBackupDownload = () => {
+    setFeedback(null);
+    setRestoreSummary(null);
+    setLoadingMessage("Menyiapkan file backup sistem...");
+
+    startDownloadingBackup(async () => {
+      try {
+        const response = await fetch("/api/dashboard/system-backup", {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          const message = await response.text();
+          let parsedMessage = "";
+
+          try {
+            parsedMessage = (JSON.parse(message) as { message?: string }).message || "";
+          } catch {
+            // Message is plain text.
+          }
+
+          throw new Error(parsedMessage || message || "Backup sistem belum dapat diunduh.");
+        }
+
+        const blob = await response.blob();
+        const disposition = response.headers.get("content-disposition") || "";
+        const fileNameMatch = disposition.match(/filename="([^"]+)"/i);
+        const fileName = fileNameMatch?.[1] || `guruku-backup-${new Date().toISOString()}.json`;
+        const downloadUrl = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+
+        anchor.href = downloadUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        URL.revokeObjectURL(downloadUrl);
+
+        setFeedback({
+          tone: "success",
+          message: "Backup sistem berhasil diunduh.",
+        });
+      } catch (error) {
+        setFeedback({
+          tone: "error",
+          message: error instanceof Error ? error.message : "Backup sistem belum dapat diunduh.",
+        });
+      } finally {
+        setLoadingMessage("");
+      }
+    });
+  };
+
+  const handleRestoreBackup = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFeedback(null);
+    setRestoreSummary(null);
+    setLoadingMessage("Memulihkan seluruh data dari backup...");
+
+    startRestoringBackup(async () => {
+      if (!selectedBackupFile) {
+        setFeedback({
+          tone: "error",
+          message: "Pilih file backup terlebih dahulu.",
+        });
+        setLoadingMessage("");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.set("backupFile", selectedBackupFile);
+      formData.set("confirmationText", restoreConfirmation);
+
+      try {
+        const response = await restoreDashboardSystemBackup(formData);
+
+        setRestoreSummary(response);
+        setSelectedBackupFile(null);
+        setRestoreConfirmation("");
+        if (backupFileInputRef.current) {
+          backupFileInputRef.current.value = "";
+        }
+        setFeedback({
+          tone: "success",
+          message: response.message,
+        });
+        router.refresh();
+
+        window.setTimeout(() => {
+          window.location.href = "/login";
+        }, 1200);
+      } catch (error) {
+        setFeedback({
+          tone: "error",
+          message: error instanceof Error ? error.message : "Restore backup belum dapat dijalankan.",
         });
       } finally {
         setLoadingMessage("");
@@ -423,6 +543,81 @@ export function DashboardSettingsForm() {
           </form>
         </Card>
       </section>
+
+      {canManageSystemBackup ? (
+        <section className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+          <Card className="p-6 md:p-7">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Backup sistem</p>
+              <h2 className="text-2xl font-semibold">Unduh seluruh data aplikasi</h2>
+            </div>
+
+            <div className="mt-6 grid gap-4">
+              <div className="rounded-[22px] border border-border bg-muted/20 px-4 py-4 text-sm text-muted-foreground">
+                Backup ini mencakup seluruh tabel database dan semua file di folder upload aplikasi. Simpan file backup di tempat yang aman karena isinya juga memuat data akun login.
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button type="button" onClick={handleBackupDownload} aria-busy={isDownloadingBackup}>
+                  {isDownloadingBackup ? "Menyiapkan backup..." : "Unduh backup penuh"}
+                </Button>
+                <Button type="button" href="/dashboard/users" variant="ghost">
+                  Cek manajemen akun
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-6 md:p-7">
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">Restore sistem</p>
+              <h2 className="text-2xl font-semibold">Pulihkan seluruh data dari backup</h2>
+            </div>
+
+            <form className="mt-6 grid gap-4" onSubmit={handleRestoreBackup}>
+              <div className="rounded-[22px] border border-[#eed2c9] bg-[#fff6f3] px-4 py-4 text-sm text-[#a24a35] dark:border-[#6a3829] dark:bg-[#2d1813] dark:text-[#f3d0c5]">
+                Restore akan mengganti seluruh isi database saat ini dan menimpa semua file upload. Setelah restore selesai, Anda akan diminta login ulang.
+              </div>
+
+              <Field label="File backup JSON" htmlFor="system-backup-file">
+                <Input
+                  id="system-backup-file"
+                  ref={backupFileInputRef}
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(event) => setSelectedBackupFile(event.target.files?.[0] || null)}
+                />
+              </Field>
+
+              <Field label='Ketik "RESTORE" untuk konfirmasi' htmlFor="restore-confirmation">
+                <Input
+                  id="restore-confirmation"
+                  value={restoreConfirmation}
+                  onChange={(event) => setRestoreConfirmation(event.target.value)}
+                  placeholder="RESTORE"
+                />
+              </Field>
+
+              {restoreSummary ? (
+                <div className="rounded-[22px] border border-[#cfe6da] bg-[#f6fbf8] px-4 py-4 text-sm text-[#1f6d59] dark:border-[#28584e] dark:bg-[#163a34] dark:text-[#d4efe6]">
+                  <p>
+                    Backup tanggal {new Date(restoreSummary.backupGeneratedAt).toLocaleString("id-ID")} berhasil dipulihkan.
+                  </p>
+                  <p className="mt-2">
+                    Data akun: {restoreSummary.restoredCounts.user} pengguna, {restoreSummary.restoredCounts.teacherProfiles} profil guru, {restoreSummary.restoredCounts.students} siswa, {restoreSummary.uploadCount} file upload.
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+                <Button type="submit" variant="outline" aria-busy={isRestoringBackup}>
+                  {isRestoringBackup ? "Menjalankan restore..." : "Restore dari backup"}
+                </Button>
+              </div>
+            </form>
+          </Card>
+        </section>
+      ) : null}
     </div>
   );
 }

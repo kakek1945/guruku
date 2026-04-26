@@ -99,11 +99,21 @@ export type DashboardSettingsApiResponse = {
   profile: DashboardSettingsProfile;
   studentCount: number;
   accountUsername: string;
+  currentUserRole: string;
+  canManageSystemBackup: boolean;
 };
 
 export type DashboardSettingsMutationResponse = {
   message: string;
   profile: DashboardSettingsProfile;
+};
+
+export type DashboardSystemRestoreResponse = {
+  message: string;
+  restoredAt: string;
+  backupGeneratedAt: string;
+  uploadCount: number;
+  restoredCounts: Record<string, number>;
 };
 
 export type DashboardStudentImportResponse = {

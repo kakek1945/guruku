@@ -57,6 +57,8 @@ export async function GET(request: Request) {
     profile: profileResponse(profile),
     studentCount: Number(studentCountRow?.total ?? 0),
     accountUsername: displayAuthLogin(authUser?.email || profile.email),
+    currentUserRole: authUser?.role || "GURU",
+    canManageSystemBackup: authUser?.role === "ADMIN",
   });
 }
 

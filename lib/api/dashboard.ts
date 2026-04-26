@@ -8,6 +8,7 @@ import type {
   DashboardOverviewApiResponse,
   DashboardSettingsApiResponse,
   DashboardSettingsMutationResponse,
+  DashboardSystemRestoreResponse,
   DashboardStudentImportResponse,
   JournalsApiResponse,
   MaterialsApiResponse,
@@ -25,6 +26,13 @@ export function getDashboardSettings() {
 
 export function saveDashboardSettings(formData: FormData) {
   return apiRequest<DashboardSettingsMutationResponse>("/api/dashboard/settings", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+export function restoreDashboardSystemBackup(formData: FormData) {
+  return apiRequest<DashboardSystemRestoreResponse>("/api/dashboard/system-backup", {
     method: "POST",
     body: formData,
   });
