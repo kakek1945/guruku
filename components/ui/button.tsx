@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "default" | "secondary" | "ghost";
+type ButtonVariant = "default" | "secondary" | "ghost" | "outline";
 type ButtonSize = "default" | "lg";
 
 type SharedProps = {
@@ -30,6 +30,8 @@ function buttonClasses(variant: ButtonVariant = "default", size: ButtonSize = "d
       "bg-primary text-primary-foreground shadow-glow hover:-translate-y-0.5 hover:brightness-105",
     variant === "secondary" &&
       "border border-primary/15 bg-secondary text-secondary-foreground hover:-translate-y-0.5 hover:bg-secondary/80",
+    variant === "outline" &&
+      "border border-border bg-background text-foreground hover:-translate-y-0.5 hover:bg-accent hover:text-accent-foreground",
     variant === "ghost" &&
       "border border-primary/10 bg-card text-foreground hover:bg-card/90",
   );
